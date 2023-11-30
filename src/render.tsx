@@ -2,6 +2,7 @@ import { Suspense, StrictMode } from 'react'
 import ReactDOM from 'react-dom/client';
 import {HashRouter} from 'react-router-dom';
 import App from './layouts/App';
+import 'virtual:windi.css';
 
 function renderApp() {
     ReactDOM.createRoot(document.getElementById('root')!).render(

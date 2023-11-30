@@ -1,5 +1,6 @@
 import './style.scss'
 import {Card} from "@components/Card";
+import {useRef} from "react";
 
 const ContainerColumns = {
     Status: 'status',
@@ -11,9 +12,9 @@ const ContainerColumns = {
 } as const
 
 export default function Containers () {
+    const cardRef = useRef<HTMLDivElement>(null)
     return (
         <div className="page !h-100vh">
-            <div className="page-title">容器</div>
             <Card ref={cardRef} className="containers-card relative">
                 <div className="overflow-auto min-h-full min-w-full">
                     <table {...instance.getTableProps()}>
