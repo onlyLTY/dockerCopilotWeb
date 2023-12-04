@@ -11,8 +11,6 @@
         display: inline-block;
         position: relative;
         text-align: center;
-        color: $color-primary-darken;
-        background: rgb(97 156 194 / 20%);
         height: $height;
         line-height: $height;
         font-weight: 500;
@@ -70,7 +68,8 @@
         top: 0;
         z-index: 999;
         white-space: nowrap;
-
+        color: $color-primary-darken;
+        background: rgb(97 156 194 / 20%);
         &:hover .containers-resizer {
             opacity: 1;
         }
@@ -115,4 +114,19 @@
         color: $color-red;
         text-shadow: 0 0 6px rgba($color: $color-primary, $alpha: 0.2);
     }
+}
+
+.checkbox-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.unselectable {
+    user-select: none;
 }

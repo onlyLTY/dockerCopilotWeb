@@ -1,18 +1,97 @@
 import {Card} from "@components/Card";
-import {useEffect, useRef, useState} from "react";
-import {flexRender, getCoreRowModel, Row, useReactTable,} from "@tanstack/react-table";
+import {ReactNode, useEffect, useRef, useState} from "react";
+import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, Row, useReactTable,} from "@tanstack/react-table";
 import {Client, ContainerInfo} from '@lib/request';
 import './style.scss'
-import {Button, Checkbox} from "antd";
+import {Badge, Button, Checkbox, Tag} from "antd";
 
-const ContainerColumns = {
-    status: '状态',
-    name: 'name',
-    usingImage: 'usingImage',
-    createTime: 'createTime',
-    runningTime: 'runningTime',
-} as const
-
+const defaultColumns: ColumnDef<ContainerInfo>[] = [
+    {
+        header: '状态',
+        footer: props => props.column.id,
+        accessorKey: 'status',
+        cell: info => {
+            const status = info.getValue();
+            let statusColor = '';
+            switch (status) {
+                case 'running':
+                    statusColor = 'green';
+                    break;
+                case 'exited':
+                    statusColor = 'red';
+                    break;
+                case 'dead':
+                    statusColor = 'red';
+                    break;
+                case 'removing':
+                    statusColor = 'red';
+                    break;
+                case 'restarting':
+                    statusColor = 'yellow';
+                    break;
+                case 'paused':
+                    statusColor = 'blue';
+                    break;
+                case 'created':
+                    statusColor = 'blue';
+                    break;
+                default:
+                    statusColor = 'purple';
+                    break;
+            }
+            return (
+                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                    <Badge color={statusColor}/>
+                </div>
+            );
+        },
+        size: 50,
+        minSize: 50,
+        maxSize: 50,
+    },
+    {
+        header: '容器名称',
+        footer: props => props.column.id,
+        accessorKey: 'name',
+        cell: info => {
+            const haveUpdate = info.row.original.haveUpdate;
+            return (
+                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                    {info.getValue() as ReactNode}
+                    {haveUpdate &&
+                        <Tag color="blue">有更新</Tag>
+                    }
+                </div>
+            );
+        },
+        size: 200,
+        minSize: 100,
+    },
+    {
+        header: '使用的镜像',
+        footer: props => props.column.id,
+        accessorKey: 'usingImage',
+        cell: info => (
+            <div style={{textAlign: 'center'}}>{info.getValue() as ReactNode}</div>
+        ),
+        size: 450,
+        minSize: 100,
+    },
+    {
+        header: '创建时间',
+        footer: props => props.column.id,
+        accessorKey: 'createTime',
+        cell: info => info.getValue(),
+        size: 200,
+    },
+    {
+        header: '运行时长',
+        footer: props => props.column.id,
+        accessorKey: 'runningTime',
+        cell: info => info.getValue(),
+        size: 200,
+    },
+]
 
 export default function Containers () {
     const cardRef = useRef<HTMLDivElement>(null)
@@ -59,12 +138,11 @@ export default function Containers () {
     };
 
     // Define columns for the table
-    type ContainerColumnsType = typeof ContainerColumns;
-    const columns = (Object.keys(ContainerColumns) as Array<keyof ContainerColumnsType>).map(key => ({
-        accessorKey: key,
-        header: () => ContainerColumns[key],
-        cell: (info: { getValue: () => any }) => info.getValue(),
-    }));
+    const [columns] = useState<typeof defaultColumns>(() => [
+        ...defaultColumns,
+    ])
+    const [columnResizeMode] =
+        useState<ColumnResizeMode>('onChange')
 
     const areAllRowsSelected = () => {
         return data.every(row => selectedRows.has(row.id));
@@ -85,15 +163,24 @@ export default function Containers () {
             {
                 id: 'selection',
                 header: () => (
-                    <Checkbox onChange={handleSelectAll} checked={areAllRowsSelected()}>
-                    </Checkbox>
+                    <div className="checkbox-center">
+                        <Checkbox onChange={handleSelectAll} checked={areAllRowsSelected()}/>
+                    </div>
                 ),
                 cell: ({row}: { row: Row<ContainerInfo> }) => (
-                    <Checkbox
-                        checked={selectedRows.has(row.original.id)}
-                        onChange={() => handleRowSelect(row.original.id)}
-                    />
+                    <div className="checkbox-center">
+                        <Checkbox
+                            checked={selectedRows.has(row.original.id)}
+                            onChange={(e) => {
+                                e.stopPropagation(); // 阻止事件冒泡
+                                handleRowSelect(row.original.id);
+                            }}
+                        />
+                    </div>
                 ),
+                size: 40,
+                minSize: 40,
+                maxSize: 40,
             },
             // 其余列
             ...
@@ -105,7 +192,11 @@ export default function Containers () {
     const table = useReactTable({
         data,
         columns: columnsWithCheckbox,
+        columnResizeMode,
         getCoreRowModel: getCoreRowModel(),
+        debugTable: true,
+        debugHeaders: true,
+        debugColumns: true,
     })
 
     const handleButtonClick = () => {
@@ -116,18 +207,45 @@ export default function Containers () {
             <Button onClick={handleButtonClick}>输出选中的复选框</Button>
             <Card ref={cardRef} className="containers-card relative">
                 <div className="overflow-auto min-h-full min-w-full">
-                    <table>
+                    <table className="full-width unselectable">
                         <thead>
                         {table.getHeaderGroups().map(headerGroup => (
-                            <tr key={headerGroup.id} className="containers-header">
+                            <tr key={headerGroup.id} className={"containers-header"}>
                                 {headerGroup.headers.map(header => (
-                                    <th key={header.id} className="containers-th" style={{width: '200px'}}>
+                                    <th
+                                        {...{
+                                            key: header.id,
+                                            colSpan: header.colSpan,
+                                            style: {
+                                                width: header.getSize(),
+                                            },
+                                            className: "containers-th"
+                                        }}
+                                    >
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
                                                 header.column.columnDef.header,
                                                 header.getContext()
                                             )}
+                                        <div
+                                            {...{
+                                                onMouseDown: header.getResizeHandler(),
+                                                onTouchStart: header.getResizeHandler(),
+                                                className: `containers-resizer ${
+                                                    header.column.getIsResizing() ? 'isResizing' : ''
+                                                }`,
+                                                style: {
+                                                    transform:
+                                                        columnResizeMode === 'onEnd' &&
+                                                        header.column.getIsResizing()
+                                                            ? `translateX(${
+                                                                table.getState().columnSizingInfo.deltaOffset
+                                                            }px)`
+                                                            : '',
+                                                },
+                                            }}
+                                        />
                                     </th>
                                 ))}
                             </tr>
@@ -135,9 +253,26 @@ export default function Containers () {
                         </thead>
                         <tbody>
                         {table.getRowModel().rows.map(row => (
-                            <tr key={row.id} className={"cursor-default select-none"}>
+                            <tr
+                                key={row.id}
+                                onClick={(e) => {
+                                    if ((e.target as Element).closest('.checkbox-center')) {
+                                        // 如果点击的是复选框，则不触发行的点击事件
+                                        return;
+                                    }
+                                    handleRowSelect(row.original.id);
+                                }}
+                            >
                                 {row.getVisibleCells().map(cell => (
-                                    <td key={cell.id} className={"containers-block"}>
+                                    <td
+                                        {...{
+                                            key: cell.id,
+                                            style: {
+                                                width: cell.column.getSize(),
+                                            },
+                                            className: "containers-block",
+                                        }}
+                                    >
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </td>
                                 ))}
