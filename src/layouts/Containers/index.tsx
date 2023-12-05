@@ -1,18 +1,22 @@
-import {Card} from "@components/Card";
+import {Card, Drawer} from "@components";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, Row, useReactTable,} from "@tanstack/react-table";
 import {Client, ContainerInfo} from '@lib/request';
+import {Badge, Button, Checkbox, ConfigProvider} from "antd";
+import {Header} from "@components/Header";
+import update from '@assets/update.png';
+import check from '@assets/check.svg';
 import './style.scss'
-import {Badge, Button, Checkbox, Tag} from "antd";
+import {useObject} from "@lib/hook.ts";
 
 const defaultColumns: ColumnDef<ContainerInfo>[] = [
     {
-        header: '状态',
+        header: '容器名称',
         footer: props => props.column.id,
-        accessorKey: 'status',
+        accessorKey: 'name',
         cell: info => {
-            const status = info.getValue();
-            let statusColor = '';
+            const status = info.row.original.status; // 获取status的值
+            let statusColor: string;
             switch (status) {
                 case 'running':
                     statusColor = 'green';
@@ -40,41 +44,48 @@ const defaultColumns: ColumnDef<ContainerInfo>[] = [
                     break;
             }
             return (
-                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                    <Badge color={statusColor}/>
-                </div>
+                <Badge
+                    color={statusColor}
+                    text={<span className="primary-darken-color">{info.getValue() as ReactNode}</span>}
+                    title={status}
+                />
             );
         },
-        size: 50,
-        minSize: 50,
-        maxSize: 50,
+        size: 150,
+        minSize: 100,
     },
     {
-        header: '容器名称',
+        header: '版本',
         footer: props => props.column.id,
-        accessorKey: 'name',
+        accessorKey: 'version',
         cell: info => {
             const haveUpdate = info.row.original.haveUpdate;
-            return (
-                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                    {info.getValue() as ReactNode}
-                    {haveUpdate &&
-                        <Tag color="blue">有更新</Tag>
-                    }
-                </div>
-            );
+            if (haveUpdate) {
+                return (
+                    <div style={{display: 'flex', alignItems: 'center'}}>
+                        <img src={update} alt={"有更新"} style={{width: 15}}/>
+                        <span style={{marginLeft: 5}}>有更新</span>
+                    </div>
+                );
+            } else {
+                return (
+                    <div style={{display: 'flex', alignItems: 'center'}}>
+                        <img src={check} alt={"已是最新"} style={{width: 15}}/>
+                        <span style={{marginLeft: 5}}>已是最新</span>
+                    </div>
+                );
+            }
         },
-        size: 200,
-        minSize: 100,
+        size: 100,
     },
     {
         header: '使用的镜像',
         footer: props => props.column.id,
         accessorKey: 'usingImage',
         cell: info => (
-            <div style={{textAlign: 'center'}}>{info.getValue() as ReactNode}</div>
+            <div>{info.getValue() as ReactNode}</div>
         ),
-        size: 450,
+        size: 350,
         minSize: 100,
     },
     {
@@ -202,9 +213,49 @@ export default function Containers () {
     const handleButtonClick = () => {
         console.log(Array.from(selectedRows));
     };
+
+    // click item
+    const [drawerState, setDrawerState] = useObject({
+        visible: false,
+        selectedID: '',
+        connection: {} as Partial<ContainerInfo>,
+    })
     return (
         <div className="page !h-100vh">
-            <Button onClick={handleButtonClick}>输出选中的复选框</Button>
+
+            <Header title={'容器'}>
+                <ConfigProvider
+                    theme={{
+                        components: {
+                            Button: {
+                                defaultBg: '#304759', // 按钮背景颜色
+                                defaultColor: '#b7c5d6', // 按钮文字颜色
+                                algorithm: true, // 启用算法
+                            }
+                        },
+                    }}
+                >
+                    <Button.Group>
+                        <Button
+                            className="button-green-hover button-green-active"
+                            onClick={handleButtonClick}>启动
+                        </Button>
+                        <Button
+                            className="button-red-hover button-red-active"
+                            onClick={handleButtonClick}>停止
+                        </Button>
+                        <Button
+                            className="button-orange-hover button-orange-active"
+                            onClick={handleButtonClick}>重启
+                        </Button>
+                        <Button
+                            className="button-blue-hover button-blue-active"
+                            onClick={handleButtonClick}>更新
+                        </Button>
+                    </Button.Group>
+                </ConfigProvider>
+            </Header>
+
             <Card ref={cardRef} className="containers-card relative">
                 <div className="overflow-auto min-h-full min-w-full">
                     <table className="full-width unselectable">
@@ -260,8 +311,9 @@ export default function Containers () {
                                         // 如果点击的是复选框，则不触发行的点击事件
                                         return;
                                     }
-                                    handleRowSelect(row.original.id);
+                                    showDrawer();
                                 }}
+                                className={"containers-body"}
                             >
                                 {row.getVisibleCells().map(cell => (
                                     <td
@@ -282,6 +334,9 @@ export default function Containers () {
                     </table>
                 </div>
             </Card>
+            <Drawer containerRef={cardRef} bodyClassName="flex flex-col bg-[#15222a] text-[#b7c5d6]" visible={drawerState.visible} width={450}>
+                <span>1</span>
+            </Drawer>
         </div>
     )
 }

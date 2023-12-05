@@ -7,10 +7,9 @@
 
     .containers-th {
         $height: 30px;
-
         display: inline-block;
         position: relative;
-        text-align: center;
+        text-align: left;
         height: $height;
         line-height: $height;
         font-weight: 500;
@@ -75,11 +74,14 @@
         }
     }
 
+    .containers-body {
+        line-height: 30px;
+    }
+
     .containers-block {
         display: inline-block;
         font-size: 12px;
-        line-height: 36px;
-        padding: 0 10px;
+        padding: 0;
         color: $color-primary-darken;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -129,4 +131,47 @@
 
 .unselectable {
     user-select: none;
+}
+.primary-darken-color {
+  color: $color-primary-darken;;
+}
+
+.button-green-hover:hover {
+    color: white !important;
+    background-color: #528E51;
+}
+
+.button-red-hover:hover {
+    color: white !important;
+    background-color: #9C5454;
+}
+
+.button-orange-hover:hover {
+    color: white !important;
+    background-color: #A9805A;
+}
+
+.button-blue-hover:hover {
+    color: white !important;
+    background-color: #58b;
+}
+
+.button-green-active:active {
+    color: white !important;
+    background-color: #476746;
+}
+
+.button-red-active:active {
+    color: white !important;
+    background-color: #674646;
+}
+
+.button-orange-active:active {
+    color: white !important;
+    background-color: #675246;
+}
+
+.button-blue-active:active {
+    color: white !important;
+    background-color: #464F67;
 }
