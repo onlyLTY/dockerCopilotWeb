@@ -1,3 +1,5 @@
 export * from './Header'
 export * from './Card'
 export * from './Drawer'
+export * from './Message'
+export * from './Icon'

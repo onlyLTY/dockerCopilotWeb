@@ -175,3 +175,8 @@
     color: white !important;
     background-color: #464F67;
 }
+
+.placeholderColor::placeholder {
+    color: red;
+}
+

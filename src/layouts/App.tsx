@@ -4,7 +4,6 @@ import SideBar from '@layouts/Sidebar'
 import Containers from "@layouts/Containers";
 import '../styles/common.scss'
 import '../styles/iconfont.scss'
-const ExternalControllerModal = () => <div>External Controller Modal</div>
 
 export default function App() {
     const location = useLocation()
@@ -19,7 +18,6 @@ export default function App() {
             <div className="page-container">
                 <Outlet />
             </div>
-            <ExternalControllerModal />
         </div>
     )
 

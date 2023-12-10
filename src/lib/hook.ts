@@ -2,6 +2,7 @@
 import { Draft } from 'immer'
 import { useState, useMemo } from 'react'
 import { useImmer } from 'use-immer'
+import {ContainerInfo} from "@lib/request.ts";
 
 export function useObject<T extends Record<string, unknown>> (initialValue: T) {
     const [copy, rawSet] = useImmer(initialValue)
@@ -62,4 +63,14 @@ export function useVisible (initial = false) {
         setVisible(true)
     }
     return { visible, hide, show }
+}
+
+export function useDrawerState() {
+    const [drawerState, setDrawerState] = useObject({
+        visible: false,
+        selectedID: '',
+        container: {} as Partial<ContainerInfo>,
+    });
+
+    return { drawerState, setDrawerState };
 }
