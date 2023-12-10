@@ -6,7 +6,7 @@ import {Badge, Button, Checkbox, ConfigProvider, Input, Space} from "antd";
 import {Header} from "@components/Header";
 import update from '@assets/update.png';
 import check from '@assets/check.svg';
-import {useObject} from "@lib/hook.ts";
+import {useDrawerState, useObject} from "@lib/hook.ts";
 import './style.scss'
 import useCustomNotification from "@components/Message";
 import classnames from "classnames";
@@ -120,6 +120,7 @@ export default function Containers () {
         const fetchData = async () => {
             try {
                 const newData = await client.getContainersList();
+                console.log(dataRef.current)
                 if (JSON.stringify(newData) !== JSON.stringify(dataRef.current)) {
                     setData(newData);
                     dataRef.current = newData;
@@ -141,6 +142,10 @@ export default function Containers () {
         });
 
         const intervalId = setInterval(() => {
+            let { drawerState, setDrawerState } = useDrawerState();
+            if (drawerState.visible) {
+                return;
+            }
             fetchData().catch(error => {
                 console.error('Error while fetching data:', error);
             });
