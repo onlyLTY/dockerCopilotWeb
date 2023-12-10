@@ -6,7 +6,7 @@ import {Badge, Button, Checkbox, ConfigProvider, Input, Space} from "antd";
 import {Header} from "@components/Header";
 import update from '@assets/update.png';
 import check from '@assets/check.svg';
-import {useDrawerState, useObject} from "@lib/hook.ts";
+import {useObject} from "@lib/hook.ts";
 import './style.scss'
 import useCustomNotification from "@components/Message";
 import classnames from "classnames";
@@ -114,6 +114,17 @@ export default function Containers () {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
+    // click item
+    const [drawerState, setDrawerState] = useObject({
+        visible: false,
+        selectedID: '',
+        container: {} as Partial<ContainerInfo>,
+    })
+
+    interface ContainerInfoProps extends BaseComponentProps {
+        container: Partial<ContainerInfo>
+    }
+
     useEffect(() => {
         const client = new Client('http://localhost:12712');
 
@@ -136,23 +147,21 @@ export default function Containers () {
             }
         };
 
-
         fetchData().catch(error => {
             console.error('Error while fetching data:', error);
         });
 
         const intervalId = setInterval(() => {
-            let { drawerState} = useDrawerState();
-            if (drawerState.visible) {
-                return;
-            }
+            console.log("内"+drawerState.visible)
+            if (!drawerState.visible) { // Only fetch data when drawerState.visible is false
             fetchData().catch(error => {
                 console.error('Error while fetching data:', error);
             });
+            }
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [drawerState.visible]);
 
     const handleRowSelect = (rowId: string) => {
         setSelectedRows((prev) => {
@@ -583,16 +592,7 @@ export default function Containers () {
         });
     };
 
-    // click item
-    const [drawerState, setDrawerState] = useObject({
-        visible: false,
-        selectedID: '',
-        container: {} as Partial<ContainerInfo>,
-    })
 
-    interface ContainerInfoProps extends BaseComponentProps {
-        container: Partial<ContainerInfo>
-    }
 
     function ContainerInfo(props: ContainerInfoProps) {
         let imageName = props.container.usingImage?.split(':')[0]
@@ -666,8 +666,7 @@ export default function Containers () {
             const imageName = inputImageName || container.usingImage?.split(':')[0];
             const imageTag = inputImageTag || container.usingImage?.split(':')[1];
             const imageNameAndTag = `${imageName}:${imageTag}`;
-            const regex = /^[\w\-.]+:[\w\-.]+$/;
-
+            const regex = /^[\w\-.\/]+:[\w\-.]+$/;
             if (!imageNameAndTag || !imageTag || !imageName || !regex.test(imageNameAndTag)) {
                 openNotificationWithButton(
                     'error',
