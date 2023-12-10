@@ -142,7 +142,7 @@ export default function Containers () {
         });
 
         const intervalId = setInterval(() => {
-            let { drawerState, setDrawerState } = useDrawerState();
+            let { drawerState} = useDrawerState();
             if (drawerState.visible) {
                 return;
             }
