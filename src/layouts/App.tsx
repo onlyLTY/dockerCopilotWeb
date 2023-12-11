@@ -2,7 +2,7 @@ import { Route, Navigate, Routes, useLocation, Outlet } from 'react-router-dom'
 import classnames from 'classnames'
 import SideBar from '@layouts/Sidebar'
 import Containers from "@layouts/Containers";
-import Images from "@layouts/images";
+import Images from "src/layouts/Images";
 import '../styles/common.scss'
 import '../styles/iconfont.scss'
 
