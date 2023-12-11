@@ -130,15 +130,15 @@ export default function Containers () {
 
         const fetchData = async () => {
             try {
-                const newData = await client.getContainersList();
+                const containerData = await client.getContainersList();
                 console.log(dataRef.current)
-                if (JSON.stringify(newData) !== JSON.stringify(dataRef.current)) {
-                    setData(newData);
-                    dataRef.current = newData;
+                if (JSON.stringify(containerData) !== JSON.stringify(dataRef.current)) {
+                    setData(containerData);
+                    dataRef.current = containerData;
 
                     // 更新 selectedRows，仅保留存在于新数据中的 ID
                     const updatedSelectedRows = new Set(
-                        Array.from(selectedRows).filter(id => newData.some(row => row.id === id))
+                        Array.from(selectedRows).filter(id => containerData.some(row => row.id === id))
                     );
                     setSelectedRows(updatedSelectedRows);
                 }
@@ -152,7 +152,6 @@ export default function Containers () {
         });
 
         const intervalId = setInterval(() => {
-            console.log("内"+drawerState.visible)
             if (!drawerState.visible) { // Only fetch data when drawerState.visible is false
             fetchData().catch(error => {
                 console.error('Error while fetching data:', error);
@@ -433,7 +432,7 @@ export default function Containers () {
             let client = new Client('http://localhost:12712');
             const containerName = data.find(row => row.id === id)?.name;
             const imageNameAndTag = data.find(row => row.id === id)?.usingImage;
-            const regex = /^[\w\-.]+:[\w\-.]+$/;
+            const regex = /^[\w\-.\/]+:[\w\-.]+$/;
             if (!imageNameAndTag || !regex.test(imageNameAndTag)) {
                 openNotificationWithButton(
                     'error',
