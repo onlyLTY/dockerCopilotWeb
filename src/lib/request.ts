@@ -11,6 +11,15 @@ export interface ContainerInfo {
     haveUpdate: boolean
 }
 
+export interface ImageInfo {
+	id: string
+    name: string
+    tag: string
+    size: string
+    inUsed: boolean
+    createTime: string
+}
+
 export class Client {
     private readonly axiosClient: AxiosInstance
 
@@ -31,11 +40,6 @@ export class Client {
             data: ContainerInfo[]
         }>('/api/containers')
         return response.data.data
-    }
-
-    async getContainerInfo(id: string) {
-        const {data} = await this.axiosClient.get<ContainerInfo>(`/api/connections/${id}`)
-        return data
     }
 
     async startContainer(id: string) {
@@ -110,10 +114,6 @@ export class Client {
         }
     }
 
-    async removeContainer(id: string) {
-        await this.axiosClient.delete(`/api/connections/${id}`)
-    }
-
     async updateContainer(id: string, containerName: string, imageNameAndTag: string, delOldContainer: boolean) {
         try {
             let formData = new FormData();
@@ -166,6 +166,15 @@ export class Client {
                 };
             }
         }
+    }
+
+    async getImageList() {
+        const response = await this.axiosClient.get<{
+            code: number,
+            msg: string,
+            data: ImageInfo[]
+        }>('/api/images')
+        return response.data.data
     }
 
 }
