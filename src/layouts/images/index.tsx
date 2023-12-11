@@ -1,6 +1,6 @@
 import {Card, Header} from "@components";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, Row, useReactTable,} from "@tanstack/react-table";
-import {Button, Checkbox, ConfigProvider, Modal, Radio, Tag} from "antd";
+import {Button, Checkbox, ConfigProvider, Modal, Radio, RadioChangeEvent, Tag} from "antd";
 import {Client, ImageInfo} from "@lib/request.ts";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import useCustomNotification from "@components/Message";
@@ -75,15 +75,14 @@ export default function Images() {
 
         const fetchData = async () => {
             try {
-                const newData = await client.getImageList();
-                console.log(dataRef.current)
-                if (JSON.stringify(newData) !== JSON.stringify(dataRef.current)) {
-                    setData(newData);
-                    dataRef.current = newData;
+                const imageData = await client.getImageList();
+                if (JSON.stringify(imageData) !== JSON.stringify(dataRef.current)) {
+                    setData(imageData);
+                    dataRef.current = imageData;
 
                     // 更新 selectedRows，仅保留存在于新数据中的 ID
                     const updatedSelectedRows = new Set(
-                        Array.from(selectedRows).filter(id => newData.some(row => row.id === id))
+                        Array.from(selectedRows).filter(id => imageData.some(row => row.id === id))
                     );
                     setSelectedRows(updatedSelectedRows);
                 }
@@ -182,27 +181,45 @@ export default function Images() {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [modalText, setModalText] = useState<ReactNode>('Content of the modal');
+    const [value, setValue] = useState(1);
 
+    const cleanImageList = (condition: string) => {
+        return data
+            .filter((image) => {
+                if (condition === '1' && image.tag === 'None') {
+                    return true;
+                } else if (condition === '2' && !image.inUsed) {
+                    return true;
+                }
+                return false;
+            })
+            .map((image) => image);
+    }
+
+    const cleanImageListText = (condition: string) => {
+        return cleanImageList(condition).map(image => {
+            return <p>{image.name}:{image.tag}</p>
+        })
+    }
+
+    const onChange = (e: RadioChangeEvent) => {
+        console.log('radio checked', e.target.value);
+        setValue(e.target.value);
+        setModalText(cleanImageListText(e.target.value.toString()));
+    };
     const showModal = () => {
         setOpen(true);
-        setModalText(
-            <div>
-                <div>
-                    <Radio>无TAG镜像</Radio>
-                    <Radio>为使用镜像</Radio>
-                </div>
-                <a href="https://example.com">This is a link.</a>
-            </div>
-        );
+        setModalText(cleanImageListText(value.toString()));
     };
 
     const handleOk = () => {
-        setModalText('正在清理中');
+        setModalText(<div>正在清理中</div>);
         setConfirmLoading(true);
-        setTimeout(() => {
-            setOpen(false);
-            setConfirmLoading(false);
-        }, 2000);
+        cleanImageList(value.toString()).forEach(async (image) => {
+            await deleteImage(image.id, false);
+        },);
+        setOpen(false);
+        setConfirmLoading(false);
     };
 
     const handleCancel = () => {
@@ -210,6 +227,86 @@ export default function Images() {
         setOpen(false);
     };
 
+    const deleteImage = async (imageId: string, force: boolean) => {
+        const promises: any[] = [];
+        const promise = await new Client('http://localhost:12712').deleteImage(imageId, force).then(r => ({
+            imageId,
+            result: r
+        }));
+        promises.push(promise);
+        Promise.all(promises).then(results => {
+            let success = results.filter(r => 200 === r.result.code);
+            let failed = results.filter(r => 200 !== r.result.code);
+            if (success.length > 0) {
+                let successDesc = success.map(r => {
+                    let imageName = data.find(row => row.id === r.imageId)?.name;
+                    return `${imageName} 删除成功`; // 构造字符串
+                }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
+                openNotificationWithButton(
+                    'success',
+                    '删除成功',
+                    <div dangerouslySetInnerHTML={{__html: successDesc}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
+                    '确认',
+                    () => console.log('容器删除成功通知已关闭')
+                );
+
+            }
+            if (failed.length > 0) {
+                let failedDesc = failed.map(r => {
+                    let imageName = data.find(row => row.id === r.imageId)?.name;
+                    return `${imageName} 删除失败${r.result.msg}`; // 构造字符串
+                }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
+                openNotificationWithButton(
+                    'error',
+                    '删除失败',
+                    <div dangerouslySetInnerHTML={{__html: failedDesc}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
+                    '确认',
+                    () => console.log('容器删除失败通知已关闭')
+                );
+            }
+        });
+    }
+
+    const [isDelingImage, setIsDelingImage] = useState(false);
+    const [isForceDelingImage, setIsForceDelingImage] = useState(false);
+
+    function deleteImageButtonClick() {
+        setIsDelingImage(true);
+        if (selectedRows.size === 0) {
+            openNotificationWithButton(
+                'warning',
+                '未选择容器',
+                <div dangerouslySetInnerHTML={{__html: '请选择要启动的容器'}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
+                '确认',
+                () => console.log('未选择容器通知已关闭')
+            );
+            setIsDelingImage(false)
+            return;
+        }
+        selectedRows.forEach(async (imageId) => {
+            await deleteImage(imageId, false);
+        },);
+        setIsDelingImage(false);
+    }
+
+    function forceDeleteImageButtonClick() {
+        setIsForceDelingImage(true);
+        if (selectedRows.size === 0) {
+            openNotificationWithButton(
+                'warning',
+                '未选择容器',
+                <div dangerouslySetInnerHTML={{__html: '请选择要启动的容器'}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
+                '确认',
+                () => console.log('未选择容器通知已关闭')
+            );
+            setIsDelingImage(false)
+            return;
+        }
+        selectedRows.forEach(async (imageId) => {
+            await deleteImage(imageId, true);
+        },);
+        setIsForceDelingImage(false);
+    }
 
     return (
         <div className="page !h-100vh">
@@ -228,6 +325,8 @@ export default function Images() {
                 >
                     <Button.Group>
                         <Button
+                            onClick= {deleteImageButtonClick}
+                            loading={isDelingImage}
                             className="button-orange-hover button-orange-active">删除
                         </Button>
                         <Button
@@ -235,23 +334,28 @@ export default function Images() {
                             className="button-red-hover button-red-active">清理镜像
                         </Button>
                         <Button
+                            onClick={forceDeleteImageButtonClick}
+                            loading={isForceDelingImage}
                             className="button-red-hover button-red-active">强制删除
                         </Button>
                     </Button.Group>
                 </ConfigProvider>
-                <Modal
-                    title="清理镜像"
-                    open={open}
-                    onOk={handleOk}
-                    confirmLoading={confirmLoading}
-                    onCancel={handleCancel}
-                    okText="确认"
-                    cancelText="取消"
-                >
-                    <p>{modalText}</p>
-                </Modal>
             </Header>
-
+            <Modal
+                title="清理镜像"
+                open={open}
+                onOk={handleOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+                okText="确认"
+                cancelText="取消"
+            >
+                <Radio.Group onChange={onChange} value={value}>
+                    <Radio value={1}>无TAG镜像</Radio>
+                    <Radio value={2}>未使用镜像</Radio>
+                </Radio.Group>
+                {modalText}
+            </Modal>
             <Card ref={cardRef} className="containers-card relative">
                 <div className="overflow-auto min-h-full min-w-full">
                     <table className="full-width unselectable">

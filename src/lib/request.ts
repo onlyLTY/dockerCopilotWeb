@@ -177,4 +177,28 @@ export class Client {
         return response.data.data
     }
 
+    async deleteImage(id: string, force: boolean) {
+        try {
+            const response = await this.axiosClient.delete<{
+                code: number,
+                msg: string,
+                data: ImageInfo[]
+            }>(`/api/image/${id}?force=${force}`);
+            return response.data;
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
 }
