@@ -267,11 +267,11 @@ export default function Images() {
         });
     }
 
-    const [isDelingImage, setIsDelingImage] = useState(false);
-    const [isForceDelingImage, setIsForceDelingImage] = useState(false);
+    const [isDeletingImage, setIsDeletingImage] = useState(false);
+    const [isForceDeletingImage, setIsForceDeletingImage] = useState(false);
 
     function deleteImageButtonClick() {
-        setIsDelingImage(true);
+        setIsDeletingImage(true);
         if (selectedRows.size === 0) {
             openNotificationWithButton(
                 'warning',
@@ -280,17 +280,17 @@ export default function Images() {
                 '确认',
                 () => console.log('未选择容器通知已关闭')
             );
-            setIsDelingImage(false)
+            setIsDeletingImage(false)
             return;
         }
         selectedRows.forEach(async (imageId) => {
             await deleteImage(imageId, false);
         },);
-        setIsDelingImage(false);
+        setIsDeletingImage(false);
     }
 
     function forceDeleteImageButtonClick() {
-        setIsForceDelingImage(true);
+        setIsForceDeletingImage(true);
         if (selectedRows.size === 0) {
             openNotificationWithButton(
                 'warning',
@@ -299,13 +299,13 @@ export default function Images() {
                 '确认',
                 () => console.log('未选择容器通知已关闭')
             );
-            setIsDelingImage(false)
+            setIsDeletingImage(false)
             return;
         }
         selectedRows.forEach(async (imageId) => {
             await deleteImage(imageId, true);
         },);
-        setIsForceDelingImage(false);
+        setIsForceDeletingImage(false);
     }
 
     return (
@@ -326,7 +326,7 @@ export default function Images() {
                     <Button.Group>
                         <Button
                             onClick= {deleteImageButtonClick}
-                            loading={isDelingImage}
+                            loading={isDeletingImage}
                             className="button-orange-hover button-orange-active">删除
                         </Button>
                         <Button
@@ -335,7 +335,7 @@ export default function Images() {
                         </Button>
                         <Button
                             onClick={forceDeleteImageButtonClick}
-                            loading={isForceDelingImage}
+                            loading={isForceDeletingImage}
                             className="button-red-hover button-red-active">强制删除
                         </Button>
                     </Button.Group>
@@ -411,6 +411,7 @@ export default function Images() {
                                         // 如果点击的是复选框，则不触发行的点击事件
                                         return;
                                     }
+                                    handleRowSelect(row.original.id);
                                     console.log(row.original);
                                 }}
                                 className={"containers-body"}
