@@ -47,7 +47,13 @@
       ],
       "@lib/*": [
         "src/lib/*"
-      ]
+      ],
+      "@styles": [
+        "src/styles"
+      ],
+      "@styles/*": [
+        "src/styles/*"
+      ],
     },
     /* Linting */
     "strict": true,
