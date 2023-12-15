@@ -29,6 +29,13 @@ export interface RemoteVersionInfo {
     remoteVersion: string
 }
 
+export interface ProgressInfo {
+    containerName: string
+    isDone: boolean
+    message: string
+    percentage: number
+}
+
 export class Client {
     private readonly axiosClient: AxiosInstance
 
@@ -250,6 +257,15 @@ export class Client {
                 };
             }
         }
+    }
+
+    async queryProgress(taskID: string) {
+        const response = await this.axiosClient.get<{
+            code: number,
+            msg: string,
+            data: ProgressInfo
+        }>(`/api/progress/${taskID}`)
+        return response.data
     }
 
 }

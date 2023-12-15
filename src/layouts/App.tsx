@@ -2,10 +2,10 @@ import { Route, Navigate, Routes, useLocation, Outlet } from 'react-router-dom'
 import classnames from 'classnames'
 import SideBar from '@layouts/Sidebar'
 import Containers from "@layouts/Containers";
-import Images from "src/layouts/Images";
-import '../styles/common.scss'
-import '../styles/iconfont.scss'
-
+import Images from "@layouts/Images";
+import ProgressQuery from "@layouts/ProgressQuery";
+import '@styles/common.scss'
+import '@styles/iconfont.scss'
 
 export default function App() {
     const location = useLocation()
@@ -13,6 +13,7 @@ export default function App() {
     const routes = [
         { path: '/containers', name: '容器', element: <Containers />, noMobile: false },
         { path: '/images', name: '镜像', element: <Images />, noMobile: false },
+        { path: '/progress', name: '进度', element: <ProgressQuery />, noMobile: false },
     ]
 
     const layout = (

@@ -1,0 +1,128 @@
+.progress-card {
+    display: flex;
+    flex: 1;
+    margin-top: 10px;
+    padding: 0;
+    overflow: hidden;
+
+    .progress-th {
+        $height: 30px;
+        display: inline-block;
+        position: relative;
+        text-align: left;
+        height: $height;
+        line-height: $height;
+        font-weight: 500;
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+
+        &.resizing .progress-resizer {
+            opacity: 1;
+            cursor: col-resize;
+        }
+
+        &.fixed {
+            position: sticky !important;
+            left: -0.1px;
+            z-index: 99;
+            &.shadow {
+                box-shadow: inset -9px 0 8px -14px $color-black;
+            }
+        }
+    }
+
+    .progress-resizer {
+        $padding: 8px;
+        $width: 20px;
+
+        position: absolute;
+        opacity: 0;
+        right: math.div($width, -2);
+        top: $padding;
+        bottom: $padding;
+        width: $width;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+        font-size: 14px;
+        font-weight: 300;
+        touch-action: none;
+        cursor: col-resize;
+
+        &::before {
+            content: '';
+            display: block;
+            position: absolute;
+            left: math.div($width, 2);
+            transform: translateX(-1px);
+            width: 2px;
+            height: 100%;
+            background-color: rgba($color-gray-darken, 60%);
+        }
+    }
+
+    .progress-header {
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        white-space: nowrap;
+        color: $color-primary-darken;
+        background: rgb(97 156 194 / 20%);
+        &:hover .progress-resizer {
+            opacity: 1;
+        }
+    }
+
+    .progress-body {
+        line-height: 30px;
+    }
+
+    .progress-block {
+        display: inline-block;
+        font-size: 12px;
+        padding: 0;
+        color: $color-primary-darken;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &.completed {
+            background-color: darken($color-gray-light, 3%);
+            color: rgba($color-primary-darken, 50%);
+        }
+
+        &.fixed {
+            position: sticky;
+            left: 0;
+            z-index: 998;
+            background-color: rgb(97 156 194 / 0%);
+            &.shadow {
+                box-shadow: inset -9px 0 8px -14px $color-black;
+            }
+        }
+    }
+}
+
+.progress-filter {
+    color: $color-primary-dark;
+    font-size: 14px;
+    line-height: 20px;
+    margin-left: 15px;
+    text-shadow: 0 0 6px rgba($color: $color-primary-dark, $alpha: 0.4);
+    cursor: pointer;
+
+    &.dangerous {
+        color: $color-red;
+        text-shadow: 0 0 6px rgba($color: $color-primary, $alpha: 0.2);
+    }
+}
+
+.progress-header th:first-child {
+    padding-left: 5px; /* 你可以根据需要调整这个值 */
+}
+
+.progress-body td:first-child {
+    padding-left: 5px; /* 你可以根据需要调整这个值 */
+}
+
