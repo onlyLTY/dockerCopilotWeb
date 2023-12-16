@@ -720,11 +720,22 @@ export default function Containers () {
                             placeholder={props.container.name}
                             className="placeholderColor"
                             style={{backgroundColor: 'white'}}/>
+                        <ConfigProvider
+                            theme={{
+                                components: {
+                                    Button: {
+                                        defaultBg: '#304759', // 按钮背景颜色
+                                        defaultColor: '#b7c5d6', // 按钮文字颜色
+                                        algorithm: true, // 启用算法
+                                    }
+                                },
+                            }}
+                        >
                         <Button
                             loading={isRenameSingle}
-                            type="primary"
                             onClick={() => renameSingleButtonClick(props.container.id as string)}
                         >重命名</Button>
+                        </ConfigProvider>
                     </Space.Compact>
                 </div>
                 <div className="flex my-3">
@@ -751,9 +762,20 @@ export default function Containers () {
                             value={inputImageTag}
                             onChange={(e) => setInputImageTag(e.target.value)}
                         />
-                        <Button type="primary"
-                                loading={isUpdateSingle}
+                        <ConfigProvider
+                            theme={{
+                                components: {
+                                    Button: {
+                                        defaultBg: '#304759', // 按钮背景颜色
+                                        defaultColor: '#b7c5d6', // 按钮文字颜色
+                                        algorithm: true, // 启用算法
+                                    }
+                                },
+                            }}
+                        >
+                            <Button loading={isUpdateSingle}
                                 onClick={() => updateSingleContainer(props.container.id as string, inputImageName, inputImageTag)}>更新</Button>
+                        </ConfigProvider>
                     </Space.Compact>
                 </div>
             </div>
