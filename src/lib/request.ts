@@ -30,10 +30,15 @@ export interface RemoteVersionInfo {
 }
 
 export interface ProgressInfo {
-    containerName: string
+    name: string
     isDone: boolean
     message: string
     percentage: number
+    detailMsg: string[]
+}
+
+export interface taskIdInfo {
+    taskID: string
 }
 
 export class Client {
@@ -136,7 +141,7 @@ export class Client {
             // 在这里处理错误，返回一个自定义的错误响应
             if (axios.isAxiosError(error) && error.response) {
                 // 如果错误来自 Axios，并且有响应体
-                return error.response.data;
+                return error.response.data as {code: number, msg: string, data: taskIdInfo};
             } else {
                 // 对于其他类型的错误，返回一个通用错误响应
                 return {
@@ -182,7 +187,7 @@ export class Client {
             const response = await this.axiosClient.post<{
                 code: number,
                 msg: string,
-                data: ContainerInfo[]
+                data: taskIdInfo
             }>(`/api/container/${id}/update`, formData);
             return response.data;
         } catch (error) {
@@ -268,4 +273,39 @@ export class Client {
         return response.data
     }
 
+    async getBackupsList() {
+        const response = await this.axiosClient.get<{
+            code: number,
+            msg: string,
+            data: string[]
+        }>('/api/container/listBackups')
+        return response.data.data
+    }
+
+    async restoreBackup(fileName: string) {
+        const response = await this.axiosClient.post<{
+            code: number,
+            msg: string,
+            data: taskIdInfo
+        }>(`/api/container/backups/${fileName}/restore`)
+        return response.data
+    }
+
+    async delBackup(fileName: string) {
+        const response = await this.axiosClient.delete<{
+            code: number,
+            msg: string,
+            data: null
+        }>(`/api/container/backups/${fileName}`)
+        return response.data
+    }
+
+    async backupContainer() {
+        const response = await this.axiosClient.get<{
+            code: number,
+            msg: string,
+            data: null
+        }>(`/api/container/backup`)
+        return response.data
+    }
 }

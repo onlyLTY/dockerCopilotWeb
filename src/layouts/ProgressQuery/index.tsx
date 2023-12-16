@@ -7,9 +7,9 @@ import './style.scss';
 
 const defaultColumns: ColumnDef<ProgressInfo>[] = [
     {
-        header: '容器名称',
+        header: '任务名称',
         footer: props => props.column.id,
-        accessorKey: 'containerName',
+        accessorKey: 'name',
         cell: info => (
             <div>{info.getValue() as ReactNode}</div>
         ),
@@ -82,13 +82,13 @@ export default function ProgressQuery() {
 
         // 立即执行一次，然后每5秒执行一次
         fetchTaskProgress();
-        const intervalId = setInterval(fetchTaskProgress, 5000);
+        const intervalId = setInterval(fetchTaskProgress, 1000);
 
         // 清理函数
         return () => {
             clearInterval(intervalId);
         };
-    }, []);
+    }, [localStorage.getItem('taskIDs')]);
 
     // Define columns for the table
     const [columns] = useState<typeof defaultColumns>(() => [
