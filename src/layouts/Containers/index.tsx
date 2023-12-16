@@ -86,7 +86,7 @@ const defaultColumns: ColumnDef<ContainerInfo>[] = [
         footer: props => props.column.id,
         accessorKey: 'usingImage',
         cell: info => (
-            <div>{info.getValue() as ReactNode}</div>
+            <div className="text-ellipsis">{info.getValue() as ReactNode}</div>
         ),
         size: 350,
         minSize: 100,
