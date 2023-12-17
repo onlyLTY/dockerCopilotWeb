@@ -6,6 +6,7 @@ export interface ContainerInfo {
     status: string
     name: string
     usingImage: string
+    createImage: string
     createTime: string
     runningTime: string
     haveUpdate: boolean

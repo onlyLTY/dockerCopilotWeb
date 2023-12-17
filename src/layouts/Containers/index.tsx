@@ -594,9 +594,16 @@ export default function Containers () {
 
 
     function ContainerInfo(props: ContainerInfoProps) {
-        let imageName = props.container.usingImage?.split(':')[0]
-        let imageTag = props.container.usingImage?.split(':')[1]
-        const [newName, setNewName] = useState('');
+        let imageName, imageTag;
+        if (props.container.createImage === "") {
+            imageName = "未知"
+            imageTag = "未知"
+        } else {
+            imageName = props.container.createImage?.split(':')[0]
+            imageTag = props.container.createImage?.split(':')[1]
+        }
+
+        const [newName, setNewName] = useState(props.container.name || '');
         const [isRenameSingle, setIsRenameSingle] = useState(false);
         const renameSingleButtonClick = (id: string) => {
             if (newName === '') {
@@ -637,9 +644,8 @@ export default function Containers () {
             });
         };
 
-
-        const [inputImageName, setInputImageName] = useState('');
-        const [inputImageTag, setInputImageTag] = useState('');
+        const [inputImageName, setInputImageName] = useState(imageName || '');
+        const [inputImageTag, setInputImageTag] = useState(imageTag || '');
         const [isUpdateSingle, setIsUpdateSingle] = useState(false);
 
         const updateSingleContainer = (id: string, inputImageName: string, inputImageTag: string) => {
@@ -717,9 +723,9 @@ export default function Containers () {
                         <Input
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            placeholder={props.container.name}
+                            //placeholder={props.container.name}
                             className="placeholderColor"
-                            style={{backgroundColor: 'white'}}/>
+                            style={{backgroundColor: '#304759', color: '#b7c5d6'}}/>
                         <ConfigProvider
                             theme={{
                                 components: {
@@ -745,9 +751,9 @@ export default function Containers () {
                 <div className="flex my-3">
                     <span className="font-bold w-20">{'目标镜像'}</span>
                     <Input
-                        placeholder={imageName}
+                        //placeholder={imageName}
                         className="placeholderColor"
-                        style={{backgroundColor: 'white'}}
+                        style={{backgroundColor: '#304759', color: '#b7c5d6'}}
                         value={inputImageName}
                         onChange={(e) => setInputImageName(e.target.value)}
                     />
@@ -758,7 +764,7 @@ export default function Containers () {
                         <Input
                             placeholder={imageTag}
                             className="placeholderColor"
-                            style={{backgroundColor: 'white'}}
+                            style={{backgroundColor: '#304759', color: '#b7c5d6'}}
                             value={inputImageTag}
                             onChange={(e) => setInputImageTag(e.target.value)}
                         />
