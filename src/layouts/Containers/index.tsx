@@ -431,7 +431,7 @@ export default function Containers () {
         selectedRows.forEach(id => {
             let client = new Client('http://localhost:12712');
             const containerName = data.find(row => row.id === id)?.name;
-            const imageNameAndTag = data.find(row => row.id === id)?.usingImage;
+            const imageNameAndTag = data.find(row => row.id === id)?.createImage;
             const regex = /^[\w\-.\/]+:[\w\-.]+$/;
             if (!imageNameAndTag || !regex.test(imageNameAndTag)) {
                 openNotificationWithButton(
