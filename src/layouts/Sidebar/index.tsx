@@ -35,29 +35,42 @@ export default function Sidebar (props: SidebarProps) {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
 
     useEffect(() => {
-        const client = new Client('http://localhost:12712');
+    const client = new Client('http://localhost:12712');
 
-        const fetchData = async () => {
-            try {
-                const versionData = await client.getVersion();
-                const remoteVersion = await client.checkUpdate();
-                console.log(dataRef.current)
-                if (JSON.stringify(versionData) !== JSON.stringify(dataRef.current)) {
-                    setData(versionData);
-                    dataRef.current = versionData;
-                }
-                if (remoteVersion.remoteVersion !== versionData.version) {
-                    setShowButton(true);
-                }
-            } catch (error) {
-                console.error('Error while getting containers list:', error);
+    const fetchVersionData = async () => {
+        try {
+            const versionData = await client.getVersion();
+
+            if (JSON.stringify(versionData) !== JSON.stringify(dataRef.current)) {
+                // 获取到版本信息后，更新 data 的状态
+                setData(versionData);
+                dataRef.current = versionData;
             }
-        };
+        } catch (error) {
+            console.error('Error while getting version data:', error);
+        }
+    };
 
-        fetchData().catch(error => {
-            console.error('Error while fetching data:', error);
-        });
-    }, []);
+    const checkUpdate = async () => {
+        try {
+            const remoteVersion = await client.checkUpdate();
+
+            if (remoteVersion.remoteVersion !== dataRef.current.version) {
+                setShowButton(true);
+            }
+        } catch (error) {
+            console.error('Error while checking update:', error);
+        }
+    };
+
+    fetchVersionData().catch(error => {
+        console.error('Error while fetching version data:', error);
+    });
+
+    checkUpdate().catch(error => {
+        console.error('Error while checking update:', error);
+    });
+}, []);
 
     async function updateButtonClick() {
         const client = new Client('http://localhost:12712');
