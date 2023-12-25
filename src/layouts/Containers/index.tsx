@@ -911,8 +911,13 @@ export default function Containers () {
                     </table>
                 </div>
             </Card>
-            <Drawer containerRef={cardRef} bodyClassName="flex flex-col bg-[#15222a] text-[#b7c5d6]"
-                    visible={drawerState.visible} width={450}>
+            <Drawer
+                containerRef={cardRef}
+                bodyClassName="flex flex-col bg-[#15222a] text-[#b7c5d6]"
+                visible={drawerState.visible}
+                width={450}
+                onMaskClick={() => setDrawerState('visible', false)}
+            >
                 <div className="flex h-8 justify-between items-center">
                     <span className="font-bold pl-3">{'容器管理'}</span>
                     <Icon type="close" style={{marginLeft: "auto"}} size={16} className="cursor-pointer"

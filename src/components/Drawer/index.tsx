@@ -10,6 +10,7 @@ interface DrawerProps extends BaseComponentProps {
     width?: number
     bodyClassName?: string
     containerRef?: RefObject<HTMLElement>
+    onMaskClick?: () => void;
 }
 
 export function Drawer (props: DrawerProps) {
@@ -25,6 +26,13 @@ export function Drawer (props: DrawerProps) {
 
     const container = (
         <div className={classnames(props.className, 'absolute inset-0 pointer-events-none z-9999')}>
+            {/* 添加遮罩层 */}
+            {props.visible && (
+                <div
+                    className="absolute inset-0 bg-black opacity-50 pointer-events-auto"
+                    onClick={props.onMaskClick}
+                />
+            )}
             <Card className={classnames(cardStyle, props.bodyClassName, { 'translate-x-0': props.visible })} style={{ width: props.width ?? 400 }}>{props.children}</Card>
         </div>
     )
