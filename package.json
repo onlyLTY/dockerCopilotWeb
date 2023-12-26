@@ -2,7 +2,7 @@
   "name": "docker-copilot-web",
   "private": true,
   "version": "0.0.0",
-  "homepage": "/manager",
+  "homepage": "/manager/",
   "type": "module",
   "scripts": {
     "dev": "vite",
