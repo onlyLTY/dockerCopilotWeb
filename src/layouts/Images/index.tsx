@@ -102,7 +102,7 @@ export default function Images() {
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [selectedRows]);
 
     const handleRowSelect = (rowId: string) => {
         setSelectedRows((prev) => {
@@ -124,7 +124,10 @@ export default function Images() {
         useState<ColumnResizeMode>('onChange')
 
     const areAllRowsSelected = () => {
-        return data.every(row => selectedRows.has(row.id));
+        if (selectedRows.size > 0) {
+            return data.every(row => selectedRows.has(row.id));
+        }
+        return false;
     };
 
     const handleSelectAll = () => {
@@ -228,6 +231,7 @@ export default function Images() {
     };
 
     const deleteImage = async (imageId: string, force: boolean) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: any[] = [];
         const promise = await new Client('http://localhost:12712').deleteImage(imageId, force).then(r => ({
             imageId,
@@ -235,11 +239,11 @@ export default function Images() {
         }));
         promises.push(promise);
         Promise.all(promises).then(results => {
-            let success = results.filter(r => 200 === r.result.code);
-            let failed = results.filter(r => 200 !== r.result.code);
+            const success = results.filter(r => 200 === r.result.code);
+            const failed = results.filter(r => 200 !== r.result.code);
             if (success.length > 0) {
-                let successDesc = success.map(r => {
-                    let imageName = data.find(row => row.id === r.imageId)?.name;
+                const successDesc = success.map(r => {
+                    const imageName = data.find(row => row.id === r.imageId)?.name;
                     return `${imageName} 删除成功`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -252,8 +256,8 @@ export default function Images() {
 
             }
             if (failed.length > 0) {
-                let failedDesc = failed.map(r => {
-                    let imageName = data.find(row => row.id === r.imageId)?.name;
+                const failedDesc = failed.map(r => {
+                    const imageName = data.find(row => row.id === r.imageId)?.name;
                     return `${imageName} 删除失败${r.result.msg}`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(

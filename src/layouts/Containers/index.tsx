@@ -160,7 +160,7 @@ export default function Containers () {
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [drawerState.visible]);
+    }, [drawerState.visible, selectedRows]);
 
     const handleRowSelect = (rowId: string) => {
         setSelectedRows((prev) => {
@@ -182,7 +182,10 @@ export default function Containers () {
         useState<ColumnResizeMode>('onChange')
 
     const areAllRowsSelected = () => {
-        return data.every(row => selectedRows.has(row.id));
+        if (selectedRows.size > 0) {
+            return data.every(row => selectedRows.has(row.id));
+        }
+        return false;
     };
 
     const handleSelectAll = () => {
@@ -245,6 +248,7 @@ export default function Containers () {
 
     const startButtonClick = () => {
         setIsStarting(true);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: any[] = [];
         if (selectedRows.size === 0) {
             openNotificationWithButton(
@@ -258,7 +262,7 @@ export default function Containers () {
             return;
         }
         selectedRows.forEach(id => {
-            let client = new Client('http://localhost:12712');
+            const client = new Client('http://localhost:12712');
             const promise = client.startContainer(id).then(r => ({
                 id,
                 result: r
@@ -267,11 +271,11 @@ export default function Containers () {
         });
 
         Promise.all(promises).then(results => {
-            let success = results.filter(r => 200 === r.result.code);
-            let failed = results.filter(r => 200 !== r.result.code);
+            const success = results.filter(r => 200 === r.result.code);
+            const failed = results.filter(r => 200 !== r.result.code);
             if (success.length > 0) {
-                let successDesc = success.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const successDesc = success.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 启动成功`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -284,8 +288,8 @@ export default function Containers () {
 
             }
             if (failed.length > 0) {
-                let failedDesc = failed.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const failedDesc = failed.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 启动失败${r.result.msg}`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -302,6 +306,7 @@ export default function Containers () {
 
     const stopButtonClick = () => {
         setIsStopping(true);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: any[] = [];
         if (selectedRows.size === 0) {
             openNotificationWithButton(
@@ -315,7 +320,7 @@ export default function Containers () {
             return;
         }
         selectedRows.forEach(id => {
-            let client = new Client('http://localhost:12712');
+            const client = new Client('http://localhost:12712');
             const promise = client.stopContainer(id).then(r => ({
                 id,
                 result: r
@@ -324,11 +329,11 @@ export default function Containers () {
         });
 
         Promise.all(promises).then(results => {
-            let success = results.filter(r => 200 === r.result.code);
-            let failed = results.filter(r => 200 !== r.result.code);
+            const success = results.filter(r => 200 === r.result.code);
+            const failed = results.filter(r => 200 !== r.result.code);
             if (success.length > 0) {
-                let successDesc = success.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const successDesc = success.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 停止成功`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -341,8 +346,8 @@ export default function Containers () {
 
             }
             if (failed.length > 0) {
-                let failedDesc = failed.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const failedDesc = failed.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 停止失败${r.result.msg}`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -359,6 +364,7 @@ export default function Containers () {
 
     const restartButtonClick = () => {
         setIsRestarting(true);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: any[] = [];
         if (selectedRows.size === 0) {
             openNotificationWithButton(
@@ -372,7 +378,7 @@ export default function Containers () {
             return;
         }
         selectedRows.forEach(id => {
-            let client = new Client('http://localhost:12712');
+            const client = new Client('http://localhost:12712');
             const promise = client.restartContainer(id).then(r => ({
                 id,
                 result: r
@@ -381,11 +387,11 @@ export default function Containers () {
         });
 
         Promise.all(promises).then(results => {
-            let success = results.filter(r => 200 === r.result.code);
-            let failed = results.filter(r => 200 !== r.result.code);
+            const success = results.filter(r => 200 === r.result.code);
+            const failed = results.filter(r => 200 !== r.result.code);
             if (success.length > 0) {
-                let successDesc = success.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const successDesc = success.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 重启成功`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -398,8 +404,8 @@ export default function Containers () {
 
             }
             if (failed.length > 0) {
-                let failedDesc = failed.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const failedDesc = failed.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 重启失败${r.result.msg}`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -416,6 +422,7 @@ export default function Containers () {
 
     const updateButtonClick = () => {
         setIsUpdating(true);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: any[] = [];
         if (selectedRows.size === 0) {
             openNotificationWithButton(
@@ -429,10 +436,10 @@ export default function Containers () {
             return;
         }
         selectedRows.forEach(id => {
-            let client = new Client('http://localhost:12712');
+            const client = new Client('http://localhost:12712');
             const containerName = data.find(row => row.id === id)?.name;
             const imageNameAndTag = data.find(row => row.id === id)?.createImage;
-            const regex = /^[\w\-.\/]+:[\w\-.]+$/;
+            const regex = /^[\w\-./]+:[\w\-.]+$/;
             if (!imageNameAndTag || !regex.test(imageNameAndTag)) {
                 openNotificationWithButton(
                     'error',
@@ -456,7 +463,7 @@ export default function Containers () {
                     // 将新的task id添加到localStorage中的数组
                     if (r.code === 200) {
                         console.log(r.data.taskID);
-                        let taskIds = JSON.parse(localStorage.getItem('taskIDs') || '[]');
+                        const taskIds = JSON.parse(localStorage.getItem('taskIDs') || '[]');
                         taskIds.push(r.data.taskID);
                         localStorage.setItem('taskIDs', JSON.stringify(taskIds));
                     }
@@ -470,11 +477,11 @@ export default function Containers () {
         });
 
         Promise.all(promises).then(results => {
-            let success = results.filter(r => 200 === r.result.code);
-            let failed = results.filter(r => 200 !== r.result.code);
+            const success = results.filter(r => 200 === r.result.code);
+            const failed = results.filter(r => 200 !== r.result.code);
             if (success.length > 0) {
-                let successDesc = success.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const successDesc = success.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 更新任务创建成功`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -486,8 +493,8 @@ export default function Containers () {
                 );
             }
             if (failed.length > 0) {
-                let failedDesc = failed.map(r => {
-                    let containerName = data.find(row => row.id === r.id)?.name;
+                const failedDesc = failed.map(r => {
+                    const containerName = data.find(row => row.id === r.id)?.name;
                     return `${containerName} 更新失败${r.result.msg}`; // 构造字符串
                 }).join('<br>'); // 使用 HTML 的 <br> 标签进行换行
                 openNotificationWithButton(
@@ -508,7 +515,7 @@ export default function Containers () {
 
     const startSingleButtonClick = (id: string) => {
         setIsStartingSingle(true)
-        let client = new Client('http://localhost:12712');
+        const client = new Client('http://localhost:12712');
 
         client.startContainer(id).then(r => {
             let resultDesc;
@@ -537,7 +544,7 @@ export default function Containers () {
 
     const stopSingleButtonClick = (id: string) => {
         setIsStoppingSingle(true)
-        let client = new Client('http://localhost:12712');
+        const client = new Client('http://localhost:12712');
 
         client.stopContainer(id).then(r => {
             let resultDesc;
@@ -565,7 +572,7 @@ export default function Containers () {
 
     const restartSingleButtonClick = (id: string) => {
         setIsRestartingSingle(true)
-        let client = new Client('http://localhost:12712');
+        const client = new Client('http://localhost:12712');
 
         client.restartContainer(id).then(r => {
             let resultDesc;
@@ -618,7 +625,7 @@ export default function Containers () {
                 return;
             }
             setIsRenameSingle(true)
-            let client = new Client('http://localhost:12712');
+            const client = new Client('http://localhost:12712');
 
             client.renameContainer(id, newName).then(r => {
                 let resultDesc;
@@ -651,7 +658,7 @@ export default function Containers () {
         const updateSingleContainer = (id: string, inputImageName: string, inputImageTag: string) => {
             setIsUpdateSingle(true);
 
-            let client = new Client('http://localhost:12712');
+            const client = new Client('http://localhost:12712');
             const container = data.find(row => row.id === id);
 
             if (!container) {
@@ -671,7 +678,7 @@ export default function Containers () {
             const imageName = inputImageName || container.usingImage?.split(':')[0];
             const imageTag = inputImageTag || container.usingImage?.split(':')[1];
             const imageNameAndTag = `${imageName}:${imageTag}`;
-            const regex = /^[\w\-.\/]+:[\w\-.]+$/;
+            const regex = /^[\w\-./]+:[\w\-.]+$/;
             if (!imageNameAndTag || !imageTag || !imageName || !regex.test(imageNameAndTag)) {
                 openNotificationWithButton(
                     'error',
@@ -691,7 +698,7 @@ export default function Containers () {
 
                 if (r.code === 200) {
                     console.log(r.data.taskID);
-                    let taskIds = JSON.parse(localStorage.getItem('taskIDs') || '[]');
+                    const taskIds = JSON.parse(localStorage.getItem('taskIDs') || '[]');
                     taskIds.push(r.data.taskID);
                     localStorage.setItem('taskIDs', JSON.stringify(taskIds));
 
