@@ -51,8 +51,8 @@ export default function ProgressQuery() {
 
     useEffect(() => {
         // 从 localStorage 获取 taskIDs
-        let taskIDsString = localStorage.getItem('taskIDs');
-        let taskIDs = taskIDsString ? JSON.parse(taskIDsString) : [];
+        const taskIDsString = localStorage.getItem('taskIDs');
+        const taskIDs = taskIDsString ? JSON.parse(taskIDsString) : [];
         if (taskIDs.length === 0) {
             setTasks([]);
         }
@@ -60,7 +60,7 @@ export default function ProgressQuery() {
         const client = new Client('http://localhost:12712');
         const fetchTaskProgress = async () => {
             const taskProgressData = await Promise.all(
-                taskIDs.slice().reverse().map(async (taskID: any) => {
+                taskIDs.slice().reverse().map(async (taskID: string) => {
                     const response = await client.queryProgress(taskID);
                     if (response.code === 200) {
                         return {
