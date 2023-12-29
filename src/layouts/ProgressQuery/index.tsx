@@ -1,6 +1,6 @@
 import {Card, Header} from "@components";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
-import {Button, ConfigProvider, Progress} from "antd";
+import {Button, ConfigProvider, Modal, Progress} from "antd";
 import {Client, ProgressInfo} from "@lib/request.ts";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import './style.scss';
@@ -48,6 +48,19 @@ const defaultColumns: ColumnDef<ProgressInfo>[] = [
 export default function ProgressQuery() {
     const cardRef = useRef<HTMLDivElement>(null)
     const [tasks, setTasks] = useState<ProgressInfo[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState<string>();
+    const [selectedRowID, setSelectedRowID] = useState<string>("");
+
+    function getDetailMsg(taskProgressData: ProgressInfo[], taskID: string) {
+        // 查找与给定 taskID 匹配的对象
+        console.log("1231")
+        console.log(taskID);
+        const task = taskProgressData.find(task => task.taskID === taskID);
+        // 如果找到了匹配的对象，返回其 detailMsg 属性
+        // 否则，返回一个默认的消息
+        return task ? task.detailMsg : '没有找到详细信息';
+    }
 
     useEffect(() => {
         // 从 localStorage 获取 taskIDs
@@ -78,9 +91,16 @@ export default function ProgressQuery() {
                 })
             );
             setTasks(taskProgressData);
+
+            console.log(isModalOpen)
+            if (isModalOpen) {
+                // 假设 getDetailMsg 是一个函数，它会根据 taskProgressData 返回相应的 detailMsg
+                const newDetailMsg = getDetailMsg(taskProgressData, selectedRowID);
+                setModalContent(newDetailMsg);
+            }
         };
 
-        // 立即执行一次，然后每5秒执行一次
+        // 立即执行一次，然后每1秒执行一次
         fetchTaskProgress();
         const intervalId = setInterval(fetchTaskProgress, 1000);
 
@@ -88,7 +108,7 @@ export default function ProgressQuery() {
         return () => {
             clearInterval(intervalId);
         };
-    }, [localStorage.getItem('taskIDs')]);
+    }, [localStorage.getItem('taskIDs'), isModalOpen, selectedRowID]);
 
     // Define columns for the table
     const [columns] = useState<typeof defaultColumns>(() => [
@@ -113,6 +133,16 @@ export default function ProgressQuery() {
         setTasks([]);
     }
 
+    const openModal = (detailMsg: string, taskID: string) => {
+        setModalContent(detailMsg);
+        setSelectedRowID(taskID);
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false)
+    };
+
     return (
         <div className="page !h-100vh">
             <Header title={'进度'}>
@@ -134,6 +164,17 @@ export default function ProgressQuery() {
                     </Button>
                 </ConfigProvider>
             </Header>
+            <Modal
+                title="详细进度"
+                open={isModalOpen}
+                footer={[
+                    <Button key="submit" type="primary" onClick={handleOk}>
+                        确认
+                    </Button>,
+                ]}
+            >
+                <p>{modalContent}</p>
+            </Modal>
             <Card ref={cardRef} className="progress-card relative">
                 <div className="overflow-auto min-h-full min-w-full">
                     <table className="full-width unselectable">
@@ -190,6 +231,7 @@ export default function ProgressQuery() {
                                         return;
                                     }
                                     // todo 点击行后显示详细进度
+                                    openModal(row.original.detailMsg, row.original.taskID);
                                     //handleRowSelect(row.original.id);
                                     console.log(row.original);
                                 }}

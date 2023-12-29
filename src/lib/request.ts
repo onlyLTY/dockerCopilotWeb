@@ -31,11 +31,12 @@ export interface RemoteVersionInfo {
 }
 
 export interface ProgressInfo {
+    taskID: string
     name: string
     isDone: boolean
     message: string
     percentage: number
-    detailMsg: string[]
+    detailMsg: string
 }
 
 export interface taskIdInfo {
@@ -180,7 +181,7 @@ export class Client {
 
     async updateContainer(id: string, containerName: string, imageNameAndTag: string, delOldContainer: boolean) {
         try {
-            let formData = new FormData();
+            const formData = new FormData();
             formData.append('containerName', containerName);
             formData.append('imageNameAndTag', imageNameAndTag);
             formData.append('delOldContainer', delOldContainer.toString());
