@@ -48,12 +48,18 @@
       "@lib/*": [
         "src/lib/*"
       ],
+      "@store": [
+        "src/store"
+      ],
+      "@store/*": [
+        "src/store/*"
+      ],
       "@styles": [
         "src/styles"
       ],
       "@styles/*": [
         "src/styles/*"
-      ],
+      ]
     },
     /* Linting */
     "strict": true,

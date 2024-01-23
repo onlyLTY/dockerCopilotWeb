@@ -1,4 +1,4 @@
-import { Route, Navigate, Routes, useLocation, Outlet } from 'react-router-dom'
+import {Navigate, Outlet, Route, Routes, useLocation} from 'react-router-dom'
 import classnames from 'classnames'
 import SideBar from '@layouts/Sidebar'
 import Containers from "@layouts/Containers";
@@ -7,6 +7,7 @@ import ProgressQuery from "@layouts/ProgressQuery";
 import Backups from "@layouts/Backups";
 import '@styles/common.scss'
 import '@styles/iconfont.scss'
+import ExternalControllerDrawer from "@layouts/ExternalControllerDrawer";
 
 export default function App() {
     const location = useLocation()
@@ -24,6 +25,7 @@ export default function App() {
             <div className="page-container">
                 <Outlet />
             </div>
+            <ExternalControllerDrawer/>
         </div>
     )
 

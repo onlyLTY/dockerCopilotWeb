@@ -11,6 +11,7 @@ import './style.scss'
 import useCustomNotification from "@components/Message";
 import classnames from "classnames";
 import {BaseComponentProps} from "@models/BaseProps.ts";
+import {useApi} from "@lib/request/index.ts";
 
 const defaultColumns: ColumnDef<ContainerInfo>[] = [
     {
@@ -125,13 +126,13 @@ export default function Containers () {
         container: Partial<ContainerInfo>
     }
 
-    useEffect(() => {
-        const client = new Client('http://localhost:12712');
+    const {getContainersList} = useApi();
 
+    useEffect(() => {
         const fetchData = async () => {
             try {
-                const containerData = await client.getContainersList();
-                console.log(dataRef.current)
+                const containerData = await getContainersList();
+                console.log(containerData);
                 if (JSON.stringify(containerData) !== JSON.stringify(dataRef.current)) {
                     setData(containerData);
                     dataRef.current = containerData;

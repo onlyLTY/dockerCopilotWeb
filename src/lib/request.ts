@@ -13,7 +13,7 @@ export interface ContainerInfo {
 }
 
 export interface ImageInfo {
-	id: string
+    id: string
     name: string
     tag: string
     size: string
@@ -43,6 +43,7 @@ export interface taskIdInfo {
     taskID: string
 }
 
+
 export class Client {
     private readonly axiosClient: AxiosInstance
 
@@ -55,7 +56,6 @@ export class Client {
             },
         })
     }
-
     async getVersion() {
         const response = await this.axiosClient.get<{
             code: number,
@@ -82,7 +82,7 @@ export class Client {
                 data: null
             }>('/api/program');
             return response.data;
-        }catch (error) {
+        } catch (error) {
             // 在这里处理错误，返回一个自定义的错误响应
             if (axios.isAxiosError(error) && error.response) {
                 // 如果错误来自 Axios，并且有响应体
@@ -143,7 +143,7 @@ export class Client {
             // 在这里处理错误，返回一个自定义的错误响应
             if (axios.isAxiosError(error) && error.response) {
                 // 如果错误来自 Axios，并且有响应体
-                return error.response.data as {code: number, msg: string, data: taskIdInfo};
+                return error.response.data as { code: number, msg: string, data: taskIdInfo };
             } else {
                 // 对于其他类型的错误，返回一个通用错误响应
                 return {
