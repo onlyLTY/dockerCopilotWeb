@@ -131,7 +131,8 @@ export default function Containers () {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const containerData = await getContainersList();
+                const resp = await getContainersList();
+                const containerData = resp.data;
                 console.log(containerData);
                 if (JSON.stringify(containerData) !== JSON.stringify(dataRef.current)) {
                     setData(containerData);
@@ -161,7 +162,7 @@ export default function Containers () {
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [drawerState.visible, selectedRows]);
+    }, [drawerState.visible, getContainersList, selectedRows]);
 
     const handleRowSelect = (rowId: string) => {
         setSelectedRows((prev) => {
