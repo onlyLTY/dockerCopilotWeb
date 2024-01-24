@@ -1,4 +1,4 @@
-import {useApiClient} from './ApiClient';
+import {useApiClient} from './apiClient';
 
 export const useApi = () => {
     const apiClient = useApiClient();

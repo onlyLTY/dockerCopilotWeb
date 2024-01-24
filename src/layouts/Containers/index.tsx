@@ -11,7 +11,7 @@ import './style.scss'
 import useCustomNotification from "@components/Message";
 import classnames from "classnames";
 import {BaseComponentProps} from "@models/BaseProps.ts";
-import {useApi} from "@lib/request/index.ts";
+import {useApi} from "@lib/request/apiReq.ts";
 
 const defaultColumns: ColumnDef<ContainerInfo>[] = [
     {

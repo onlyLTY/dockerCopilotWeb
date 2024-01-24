@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import './style.scss'
 import {configAtom} from "@lib/request/configAtom";
 import {modalOpenAtom} from "@layouts/ExternalControllerDrawer/constants";
-import {useApi} from "@lib/request/index.ts"; // 调整路径以匹配你的文件结构
+import {useApi} from "@lib/request/apiReq.ts"; // 调整路径以匹配你的文件结构
 
 export default function ExternalControllerDrawer() {
     const [, setConfig] = useAtom(configAtom)
