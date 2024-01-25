@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import './style.scss'
 import {configAtom} from "@lib/request/configAtom";
 import {modalOpenAtom} from "@layouts/ExternalControllerDrawer/constants";
-import {useApi} from "@lib/request/apiReq.ts"; // 调整路径以匹配你的文件结构
+import axios from "axios"; // 调整路径以匹配你的文件结构
 
 export default function ExternalControllerDrawer() {
     const [, setConfig] = useAtom(configAtom)
@@ -13,7 +13,6 @@ export default function ExternalControllerDrawer() {
     const [port, setPort] = useState("");
     const [secretKey, setSecretKey] = useState("");
     const [protocol, setProtocol] = useState("http://");
-    const {login} = useApi(); // 使用useApi hook
 
     useEffect(() => {
         const storedConfig = localStorage.getItem('externalControllers');
@@ -54,14 +53,15 @@ export default function ExternalControllerDrawer() {
 
     const handleOk = async () => {
         try {
-            setConfig({
-                hostname: protocol + hostname,
-                port: port,
-                secretKey: secretKey,
-                jwt: "",
+            const formData = new FormData();
+            formData.append('secretKey', secretKey);
+            const resp = await axios.post(protocol + hostname + ':' + port + '/api/auth', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
-            const resp = await login(secretKey);
-            const jwt = resp.data.jwt;
+
+            const jwt = resp.data.data.jwt;
             setConfig({
                 hostname: protocol + hostname,
                 port: port,
