@@ -38,7 +38,7 @@ export const useApi = () => {
             return response.data;
         } catch (error) {
             console.error('Get containers list error:', error);
-            throw error;
+            throw new Error('Get containers list error');
         }
     }
 

@@ -12,6 +12,8 @@ import useCustomNotification from "@components/Message";
 import classnames from "classnames";
 import {BaseComponentProps} from "@models/BaseProps.ts";
 import {useApi} from "@lib/request/apiReq.ts";
+import {useSetAtom} from "jotai";
+import {modalOpenAtom} from "@layouts/ExternalControllerDrawer/constants.ts";
 
 const defaultColumns: ColumnDef<ContainerInfo>[] = [
     {
@@ -108,12 +110,13 @@ const defaultColumns: ColumnDef<ContainerInfo>[] = [
     },
 ]
 
-export default function Containers () {
+export default function Containers() {
     const cardRef = useRef<HTMLDivElement>(null)
     // Static data for the table
     const [data, setData] = useState<ContainerInfo[]>([]);
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+    const setModalOpen = useSetAtom(modalOpenAtom)
 
     // click item
     const [drawerState, setDrawerState] = useObject({
@@ -133,19 +136,24 @@ export default function Containers () {
             try {
                 const resp = await getContainersList();
                 const containerData = resp.data;
-                console.log(containerData);
                 if (JSON.stringify(containerData) !== JSON.stringify(dataRef.current)) {
                     setData(containerData);
                     dataRef.current = containerData;
 
                     // 更新 selectedRows，仅保留存在于新数据中的 ID
                     const updatedSelectedRows = new Set(
-                        Array.from(selectedRows).filter(id => containerData.some(row => row.id === id))
+                        Array.from(selectedRows).filter(id => containerData.some((row: ContainerInfo) => row.id === id))
                     );
                     setSelectedRows(updatedSelectedRows);
                 }
-            } catch (error) {
-                console.error('Error while getting containers list:', error);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.log(typeof error);
+                    if (error.message === 'Get containers list error') {
+                        setModalOpen(true);
+                    }
+                    console.error('Error while getting containers list:', error);
+                }
             }
         };
 
@@ -155,14 +163,14 @@ export default function Containers () {
 
         const intervalId = setInterval(() => {
             if (!drawerState.visible) { // Only fetch data when drawerState.visible is false
-            fetchData().catch(error => {
-                console.error('Error while fetching data:', error);
-            });
+                fetchData().catch(error => {
+                    console.error('Error while fetching data:', error);
+                });
             }
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [drawerState.visible, getContainersList, selectedRows]);
+    }, [drawerState.visible, getContainersList, selectedRows, setModalOpen]);
 
     const handleRowSelect = (rowId: string) => {
         setSelectedRows((prev) => {
@@ -601,7 +609,6 @@ export default function Containers () {
     };
 
 
-
     function ContainerInfo(props: ContainerInfoProps) {
         let imageName, imageTag;
         if (props.container.createImage === "") {
@@ -746,10 +753,10 @@ export default function Containers () {
                                 },
                             }}
                         >
-                        <Button
-                            loading={isRenameSingle}
-                            onClick={() => renameSingleButtonClick(props.container.id as string)}
-                        >重命名</Button>
+                            <Button
+                                loading={isRenameSingle}
+                                onClick={() => renameSingleButtonClick(props.container.id as string)}
+                            >重命名</Button>
                         </ConfigProvider>
                     </Space.Compact>
                 </div>
@@ -789,7 +796,7 @@ export default function Containers () {
                             }}
                         >
                             <Button loading={isUpdateSingle}
-                                onClick={() => updateSingleContainer(props.container.id as string, inputImageName, inputImageTag)}>更新</Button>
+                                    onClick={() => updateSingleContainer(props.container.id as string, inputImageName, inputImageTag)}>更新</Button>
                         </ConfigProvider>
                     </Space.Compact>
                 </div>
