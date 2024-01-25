@@ -4,6 +4,9 @@ export const useApi = () => {
     const apiClient = useApiClient();
 
     const login = async (secretKey: string) => {
+        // 登录不是这里，用这个登录的话会有奇怪的问题，需要点击两次才能成功登录
+        // 第一次是按照老的client发送请求，第二次是按照新的client发送请求
+        // 非常奇怪，暂时不知道原因
         // 创建FormData实例
         const formData = new FormData();
         formData.append('secretKey', secretKey);
