@@ -45,10 +45,23 @@ export const useApi = () => {
         }
     }
 
+    const startContainer = async (id: string) => {
+        try {
+            const response = await apiClient.post(`/api/container/${id}/start`, {
+                id
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Start container error:', error);
+            throw new Error('Start container error');
+        }
+    }
+
     return {
         login,
         getVersion,
         getContainersList,
+        startContainer,
         // ...可以添加更多的API方法
     };
 };
