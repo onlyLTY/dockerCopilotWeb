@@ -1,6 +1,20 @@
 import {useApiClient} from './apiClient';
 import axios from "axios";
-import {ContainerInfo, taskIdInfo} from "@lib/request.ts";
+
+export interface taskIdInfo {
+    taskID: string
+}
+
+export interface ContainerInfo {
+    id: string
+    status: string
+    name: string
+    usingImage: string
+    createImage: string
+    createTime: string
+    runningTime: string
+    haveUpdate: boolean
+}
 
 export const useApi = () => {
     const apiClient = useApiClient();
