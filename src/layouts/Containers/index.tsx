@@ -117,7 +117,7 @@ export default function Containers() {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
     const setModalOpen = useSetAtom(modalOpenAtom)
-    const {getContainersList, startContainer} = useApi();
+    const {getContainersList, startContainer, stopContainer} = useApi();
 
     // click item
     const [drawerState, setDrawerState] = useObject({
@@ -331,8 +331,7 @@ export default function Containers() {
             return;
         }
         selectedRows.forEach(id => {
-            const client = new Client('http://localhost:12712');
-            const promise = client.stopContainer(id).then(r => ({
+            const promise = stopContainer(id).then(r => ({
                 id,
                 result: r
             }));
