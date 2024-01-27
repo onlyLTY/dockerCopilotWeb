@@ -1,4 +1,5 @@
 import {useApiClient} from './apiClient';
+import axios from "axios";
 
 export const useApi = () => {
     const apiClient = useApiClient();
@@ -52,8 +53,17 @@ export const useApi = () => {
             });
             return response.data;
         } catch (error) {
-            console.error('Start container error:', error);
-            throw new Error('Start container error');
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
         }
     }
 
