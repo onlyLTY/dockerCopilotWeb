@@ -1,8 +1,8 @@
 /* eslint-disable no-redeclare */
-import { Draft } from 'immer'
-import { useState, useMemo } from 'react'
-import { useImmer } from 'use-immer'
-import {ContainerInfo} from "@lib/request.ts";
+import {Draft} from 'immer'
+import {useMemo, useState} from 'react'
+import {useImmer} from 'use-immer'
+import {ContainerInfo} from "@lib/request/type.ts";
 
 export function useObject<T extends Record<string, unknown>> (initialValue: T) {
     const [copy, rawSet] = useImmer(initialValue)
