@@ -301,6 +301,126 @@ export const useApi = () => {
         }
     }
 
+    const updateProgram = async () => {
+        try {
+            const response = await apiClient.put<{
+                code: number,
+                msg: string,
+                data: null
+            }>('/api/program');
+            return response.data;
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: null
+                };
+            }
+        }
+    }
+
+    const getBackupsList = async () => {
+        try {
+            const response = await apiClient.get<{
+                code: number,
+                msg: string,
+                data: string[]
+            }>('/api/container/listBackups')
+            return response.data
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: null
+                };
+            }
+        }
+    }
+
+    const createBackup = async () => {
+        try {
+            const response = await apiClient.get<{
+                code: number,
+                msg: string,
+                data: null
+            }>(`/api/container/backup`)
+            return response.data
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: null
+                };
+            }
+        }
+    }
+
+    const restoreBackup = async (fileName: string) => {
+        try {
+            const response = await apiClient.post<{
+                code: number,
+                msg: string,
+                data: taskIdInfo
+            }>(`/api/container/backups/${fileName}/restore`)
+            return response.data
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: null
+                };
+            }
+        }
+    }
+
+    const delBackup = async (fileName: string) => {
+        try {
+            const response = await apiClient.delete<{
+                code: number,
+                msg: string,
+                data: null
+            }>(`/api/container/backups/${fileName}`)
+            return response.data
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                console.log(error);
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                console.log(error);
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: null
+                };
+            }
+        }
+
+    }
+
     return {
         login,
         getVersion,
@@ -315,6 +435,11 @@ export const useApi = () => {
         queryProgress,
         getVersionInfo,
         getRemoteVersionInfo,
+        updateProgram,
+        getBackupsList,
+        createBackup,
+        restoreBackup,
+        delBackup,
         // ...可以添加更多的API方法
     };
 };

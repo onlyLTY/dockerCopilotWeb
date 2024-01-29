@@ -3,9 +3,10 @@ import logo from '@assets/DockerCopilotlogo.png'
 import {NavLink, useLocation} from 'react-router-dom'
 import './style.scss'
 import {useEffect, useRef, useState} from "react";
-import {Client, VersionInfo} from "@lib/request.ts";
 import {Button, ConfigProvider} from "antd";
 import useCustomNotification from "@components/Message";
+import {VersionInfo} from "@lib/request/type.ts";
+import {useApi} from "@lib/request/apiReq.ts";
 
 interface SidebarProps {
     routes: Array<{
@@ -20,6 +21,7 @@ export default function Sidebar (props: SidebarProps) {
     const location = useLocation()
     const [showButton, setShowButton] = useState(false)
     const {contextHolder, openNotificationWithButton} = useCustomNotification();
+    const {getVersionInfo, getRemoteVersionInfo, updateProgram} = useApi()
 
     const navlinks = routes.map(
         ({ path, name, noMobile }) => (
@@ -35,16 +37,14 @@ export default function Sidebar (props: SidebarProps) {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
 
     useEffect(() => {
-    const client = new Client('http://localhost:12712');
-
     const fetchVersionData = async () => {
         try {
-            const versionData = await client.getVersion();
-
-            if (JSON.stringify(versionData) !== JSON.stringify(dataRef.current)) {
+            const resp = await getVersionInfo();
+            const versionInfo = resp.data
+            if (JSON.stringify(versionInfo) !== JSON.stringify(dataRef.current)) {
                 // 获取到版本信息后，更新 data 的状态
-                setData(versionData);
-                dataRef.current = versionData;
+                setData(versionInfo);
+                dataRef.current = versionInfo;
             }
         } catch (error) {
             console.error('Error while getting version data:', error);
@@ -53,7 +53,7 @@ export default function Sidebar (props: SidebarProps) {
 
     const checkUpdate = async () => {
         try {
-            const remoteVersion = await client.checkUpdate();
+            const remoteVersion = await getRemoteVersionInfo();
 
             if (remoteVersion.remoteVersion !== dataRef.current.version) {
                 setShowButton(true);
@@ -70,11 +70,10 @@ export default function Sidebar (props: SidebarProps) {
     checkUpdate().catch(error => {
         console.error('Error while checking update:', error);
     });
-}, []);
+    }, [getRemoteVersionInfo, getVersionInfo]);
 
     async function updateButtonClick() {
-        const client = new Client('http://localhost:12712');
-        const updateResult = await client.updateProgram() as unknown as {
+        const updateResult = await updateProgram() as unknown as {
             code: number,
             msg: string,
             data: null
@@ -107,7 +106,7 @@ export default function Sidebar (props: SidebarProps) {
             </ul>
             <div className="sidebar-version">
                 <span className="sidebar-version-label">Docker Copilot</span>
-                <span className="sidebar-version-text">{data.version}</span>
+                <span className="sidebar-version-text">{data?.version}</span>
                 <ConfigProvider
                     theme={{
                         components: {
