@@ -1,9 +1,10 @@
 import {Card, Header} from "@components";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 import {Button, ConfigProvider, Modal, Progress} from "antd";
-import {Client, ProgressInfo} from "@lib/request.ts";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import './style.scss';
+import {ProgressInfo} from "@lib/request/type.ts";
+import {useApi} from "@lib/request/apiReq.ts";
 
 const defaultColumns: ColumnDef<ProgressInfo>[] = [
     {
@@ -51,6 +52,7 @@ export default function ProgressQuery() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState<string>();
     const [selectedRowID, setSelectedRowID] = useState<string>("");
+    const {queryProgress} = useApi();
 
     function getDetailMsg(taskProgressData: ProgressInfo[], taskID: string) {
         // 查找与给定 taskID 匹配的对象
@@ -70,11 +72,10 @@ export default function ProgressQuery() {
             setTasks([]);
         }
         // 为每个 taskID 调用 API 获取进度信息
-        const client = new Client('http://localhost:12712');
         const fetchTaskProgress = async () => {
             const taskProgressData = await Promise.all(
                 taskIDs.slice().reverse().map(async (taskID: string) => {
-                    const response = await client.queryProgress(taskID);
+                    const response = await queryProgress(taskID);
                     if (response.code === 200) {
                         return {
                             ...response.data,
@@ -92,7 +93,6 @@ export default function ProgressQuery() {
             );
             setTasks(taskProgressData);
 
-            console.log(isModalOpen)
             if (isModalOpen) {
                 // 假设 getDetailMsg 是一个函数，它会根据 taskProgressData 返回相应的 detailMsg
                 const newDetailMsg = getDetailMsg(taskProgressData, selectedRowID);
