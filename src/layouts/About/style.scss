@@ -1,0 +1,21 @@
+.about-card {
+  display: flex;
+  flex: 1;
+  margin-top: 10px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.about-content {
+  color: #b7c5d6;
+}
+
+.about-img {
+  text-align: center;
+}
+
+.about-content img {
+  max-width: 30%; /* 或者更小的百分比，根据需要调整 */
+  height: auto; /* 保持图片的纵横比 */
+  display: inline-block; /* 或者使用 inline */
+}

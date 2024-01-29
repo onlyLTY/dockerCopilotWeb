@@ -8,6 +8,7 @@ import Backups from "@layouts/Backups";
 import '@styles/common.scss'
 import '@styles/iconfont.scss'
 import ExternalControllerDrawer from "@layouts/ExternalControllerDrawer";
+import About from "@layouts/About";
 
 export default function App() {
     const location = useLocation()
@@ -17,6 +18,7 @@ export default function App() {
         { path: '/images', name: '镜像', element: <Images />, noMobile: false },
         { path: '/progress', name: '进度', element: <ProgressQuery />, noMobile: false },
         { path: '/backups', name: '备份', element: <Backups />, noMobile: false },
+        {path: '/about', name: '关于', element: <About/>, noMobile: true},
     ]
 
     const layout = (
