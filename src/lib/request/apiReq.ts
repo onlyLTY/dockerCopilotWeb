@@ -1,7 +1,7 @@
 import {useApiClient} from './apiClient';
 import axios from "axios";
 import FormData from "form-data";
-import {ContainerInfo, ImageInfo, ProgressInfo, taskIdInfo, VersionInfo} from "@lib/request/type.ts";
+import {ContainerInfo, ImageInfo, ProgressInfo, RemoteVersionInfo, taskIdInfo, VersionInfo} from "@lib/request/type.ts";
 
 export const useApi = () => {
     const apiClient = useApiClient();
@@ -259,7 +259,11 @@ export const useApi = () => {
                 code: number,
                 msg: string,
                 data: VersionInfo
-            }>('/api/version')
+            }>('/api/version', {
+                params: {
+                    type: 'local'
+                }
+            });
             return response.data
         } catch (error) {
             // 在这里处理错误，返回一个自定义的错误响应
@@ -282,8 +286,12 @@ export const useApi = () => {
             const response = await apiClient.get<{
                 code: number,
                 msg: string,
-                data: VersionInfo
-            }>('/api/version')
+                data: RemoteVersionInfo
+            }>('/api/version', {
+                params: {
+                    type: 'remote'
+                }
+            });
             return response.data
         } catch (error) {
             // 在这里处理错误，返回一个自定义的错误响应

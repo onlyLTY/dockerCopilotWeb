@@ -53,7 +53,8 @@ export default function Sidebar (props: SidebarProps) {
 
     const checkUpdate = async () => {
         try {
-            const remoteVersion = await getRemoteVersionInfo();
+            const remoteVersionResp = await getRemoteVersionInfo();
+            const remoteVersion = remoteVersionResp.data
 
             if (remoteVersion.remoteVersion !== dataRef.current.version) {
                 setShowButton(true);
