@@ -1,7 +1,7 @@
 import {Card, Drawer, Icon, NotificationType} from "@components";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, Row, useReactTable,} from "@tanstack/react-table";
-import {Client, ContainerInfo} from '@lib/request';
+import {ContainerInfo} from "@lib/request/type.ts";
 import {Badge, Button, Checkbox, ConfigProvider, Input, Space} from "antd";
 import {Header} from "@components/Header";
 import update from '@assets/update.png';
@@ -117,7 +117,14 @@ export default function Containers() {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
     const setModalOpen = useSetAtom(modalOpenAtom)
-    const {getContainersList, startContainer, stopContainer, restartContainer} = useApi();
+    const {
+        getContainersList,
+        startContainer,
+        stopContainer,
+        restartContainer,
+        updateContainer,
+        renameContainer
+    } = useApi();
 
     // click item
     const [drawerState, setDrawerState] = useObject({
@@ -445,7 +452,6 @@ export default function Containers() {
             return;
         }
         selectedRows.forEach(id => {
-            const client = new Client('http://localhost:12712');
             const containerName = data.find(row => row.id === id)?.name;
             const imageNameAndTag = data.find(row => row.id === id)?.createImage;
             const regex = /^[\w\-./]+:[\w\-.]+$/;
@@ -468,7 +474,7 @@ export default function Containers() {
                 );
                 return;
             } else {
-                const promise = client.updateContainer(id, containerName, imageNameAndTag, true).then(r => {
+                const promise = updateContainer(id, containerName, imageNameAndTag, true).then(r => {
                     // 将新的task id添加到localStorage中的数组
                     if (r.code === 200) {
                         console.log(r.data.taskID);
@@ -524,9 +530,8 @@ export default function Containers() {
 
     const startSingleButtonClick = (id: string) => {
         setIsStartingSingle(true)
-        const client = new Client('http://localhost:12712');
 
-        client.startContainer(id).then(r => {
+        startContainer(id).then(r => {
             let resultDesc;
             let notificationType: NotificationType;
             setIsStartingSingle(false)
@@ -553,9 +558,8 @@ export default function Containers() {
 
     const stopSingleButtonClick = (id: string) => {
         setIsStoppingSingle(true)
-        const client = new Client('http://localhost:12712');
 
-        client.stopContainer(id).then(r => {
+        stopContainer(id).then(r => {
             let resultDesc;
             let notificationType: NotificationType;
             if (r.code === 200) {
@@ -581,9 +585,8 @@ export default function Containers() {
 
     const restartSingleButtonClick = (id: string) => {
         setIsRestartingSingle(true)
-        const client = new Client('http://localhost:12712');
 
-        client.restartContainer(id).then(r => {
+        restartContainer(id).then(r => {
             let resultDesc;
             let notificationType: NotificationType;
             if (r.code === 200) {
@@ -633,9 +636,8 @@ export default function Containers() {
                 return;
             }
             setIsRenameSingle(true)
-            const client = new Client('http://localhost:12712');
 
-            client.renameContainer(id, newName).then(r => {
+            renameContainer(id, newName).then(r => {
                 let resultDesc;
                 let notificationType: NotificationType;
                 if (r.code === 200) {
@@ -666,7 +668,6 @@ export default function Containers() {
         const updateSingleContainer = (id: string, inputImageName: string, inputImageTag: string) => {
             setIsUpdateSingle(true);
 
-            const client = new Client('http://localhost:12712');
             const container = data.find(row => row.id === id);
 
             if (!container) {
@@ -700,7 +701,7 @@ export default function Containers() {
                 return;
             }
 
-            client.updateContainer(id, containerName, imageNameAndTag, true).then(r => {
+            updateContainer(id, containerName, imageNameAndTag, true).then(r => {
                 let notificationType: NotificationType;
                 let resultDesc;
 

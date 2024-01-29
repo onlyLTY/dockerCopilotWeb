@@ -1,20 +1,7 @@
 import {useApiClient} from './apiClient';
 import axios from "axios";
-
-export interface taskIdInfo {
-    taskID: string
-}
-
-export interface ContainerInfo {
-    id: string
-    status: string
-    name: string
-    usingImage: string
-    createImage: string
-    createTime: string
-    runningTime: string
-    haveUpdate: boolean
-}
+import FormData from "form-data";
+import {ContainerInfo, ImageInfo, ProgressInfo, taskIdInfo, VersionInfo} from "@lib/request/type.ts";
 
 export const useApi = () => {
     const apiClient = useApiClient();
@@ -140,6 +127,180 @@ export const useApi = () => {
         }
     }
 
+    const updateContainer = async (id: string, containerName: string, imageNameAndTag: string, delOldContainer: boolean) => {
+        try {
+            const formData = new FormData();
+            formData.append('containerName', containerName);
+            formData.append('imageNameAndTag', imageNameAndTag);
+            formData.append('delOldContainer', delOldContainer.toString());
+
+            const response = await apiClient.post<{
+                code: number,
+                msg: string,
+                data: taskIdInfo
+            }>(`/api/container/${id}/update`, formData);
+            return response.data;
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                console.log(error);
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
+    const renameContainer = async (id: string, newName: string) => {
+        try {
+            const response = await apiClient.post<{
+                code: number,
+                msg: string,
+                data: ContainerInfo[]
+            }>(`/api/container/${id}/rename?newName=${newName}`);
+            return response.data;
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
+    const getImagesList = async () => {
+        try {
+            const response = await apiClient.get<{
+                code: number,
+                msg: string,
+                data: ImageInfo[]
+            }>('/api/images')
+            return response.data
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
+    const delImage = async (id: string, force: boolean) => {
+        try {
+            const response = await apiClient.delete<{
+                code: number,
+                msg: string,
+                data: ImageInfo[]
+            }>(`/api/image/${id}?force=${force}`);
+            return response.data;
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
+    const queryProgress = async (taskID: string) => {
+        try {
+            const response = await apiClient.get<{
+                code: number,
+                msg: string,
+                data: ProgressInfo
+            }>(`/api/progress/${taskID}`)
+            return response.data
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
+    const getVersionInfo = async () => {
+        try {
+            const response = await apiClient.get<{
+                code: number,
+                msg: string,
+                data: VersionInfo
+            }>('/api/version')
+            return response.data
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
+    const getRemoteVersionInfo = async () => {
+        try {
+            const response = await apiClient.get<{
+                code: number,
+                msg: string,
+                data: VersionInfo
+            }>('/api/version')
+            return response.data
+        } catch (error) {
+            // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: []
+                };
+            }
+        }
+    }
+
     return {
         login,
         getVersion,
@@ -147,6 +308,13 @@ export const useApi = () => {
         startContainer,
         stopContainer,
         restartContainer,
+        updateContainer,
+        renameContainer,
+        getImagesList,
+        delImage,
+        queryProgress,
+        getVersionInfo,
+        getRemoteVersionInfo,
         // ...可以添加更多的API方法
     };
 };
