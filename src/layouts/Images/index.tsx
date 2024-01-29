@@ -1,9 +1,10 @@
 import {Card, Header} from "@components";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, Row, useReactTable,} from "@tanstack/react-table";
 import {Button, Checkbox, ConfigProvider, Modal, Radio, RadioChangeEvent, Tag} from "antd";
-import {Client, ImageInfo} from "@lib/request.ts";
 import {ReactNode, useEffect, useRef, useState} from "react";
 import useCustomNotification from "@components/Message";
+import {ImageInfo} from "@lib/request/type.ts";
+import {useApi} from "@lib/request/apiReq.ts";
 
 const defaultColumns: ColumnDef<ImageInfo>[] = [
     {
@@ -69,20 +70,20 @@ export default function Images() {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
     const {contextHolder, openNotificationWithButton} = useCustomNotification();
+    const {getImagesList, delImage} = useApi();
 
     useEffect(() => {
-        const client = new Client('http://localhost:12712');
-
         const fetchData = async () => {
             try {
-                const imageData = await client.getImageList();
+                const resp = await getImagesList();
+                const imageData = resp.data;
                 if (JSON.stringify(imageData) !== JSON.stringify(dataRef.current)) {
                     setData(imageData);
                     dataRef.current = imageData;
 
                     // 更新 selectedRows，仅保留存在于新数据中的 ID
                     const updatedSelectedRows = new Set(
-                        Array.from(selectedRows).filter(id => imageData.some(row => row.id === id))
+                        Array.from(selectedRows).filter(id => imageData.some((row: ImageInfo) => row.id === id))
                     );
                     setSelectedRows(updatedSelectedRows);
                 }
@@ -102,7 +103,7 @@ export default function Images() {
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [selectedRows]);
+    }, [getImagesList, selectedRows]);
 
     const handleRowSelect = (rowId: string) => {
         setSelectedRows((prev) => {
@@ -233,7 +234,7 @@ export default function Images() {
     const deleteImage = async (imageId: string, force: boolean) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const promises: any[] = [];
-        const promise = await new Client('http://localhost:12712').deleteImage(imageId, force).then(r => ({
+        const promise = await delImage(imageId, force).then(r => ({
             imageId,
             result: r
         }));
@@ -280,7 +281,7 @@ export default function Images() {
             openNotificationWithButton(
                 'warning',
                 '未选择容器',
-                <div dangerouslySetInnerHTML={{__html: '请选择要启动的容器'}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
+                <div dangerouslySetInnerHTML={{__html: '请选择要删除的容器'}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
                 '确认',
                 () => console.log('未选择容器通知已关闭')
             );
@@ -299,11 +300,11 @@ export default function Images() {
             openNotificationWithButton(
                 'warning',
                 '未选择容器',
-                <div dangerouslySetInnerHTML={{__html: '请选择要启动的容器'}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
+                <div dangerouslySetInnerHTML={{__html: '请选择要强制删除的容器'}}/>, // 使用 dangerouslySetInnerHTML 渲染 HTML 字符串
                 '确认',
                 () => console.log('未选择容器通知已关闭')
             );
-            setIsDeletingImage(false)
+            setIsForceDeletingImage(false)
             return;
         }
         selectedRows.forEach(async (imageId) => {
