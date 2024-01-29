@@ -1,10 +1,10 @@
 import {Card, Header, NotificationType} from "@components";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 import {Button, ConfigProvider} from "antd";
-import {Client} from "@lib/request.ts";
 import {useEffect, useRef, useState} from "react";
 import useCustomNotification from "@components/Message";
 import './style.scss';
+import {useApi} from "@lib/request/apiReq.ts";
 
 
 const defaultColumns: ColumnDef<string>[] = [
@@ -26,20 +26,20 @@ export default function Backups() {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
     const {contextHolder, openNotificationWithButton} = useCustomNotification();
+    const {getBackupsList, createBackup, restoreBackup, delBackup} = useApi()
 
     useEffect(() => {
-        const client = new Client('http://localhost:12712');
-
         const fetchData = async () => {
             try {
-                const backupsList = await client.getBackupsList();
+                const backupsListResp = await getBackupsList();
+                const backupsList = backupsListResp.data;
                 if (backupsList === null || JSON.stringify(backupsList) !== JSON.stringify(dataRef.current)) {
                     setData(backupsList || []);
                     dataRef.current = backupsList || [];
 
                     // 更新 selectedRows，仅保留存在于新数据中的 ID
                     const updatedSelectedRows = new Set(
-                        Array.from(selectedRows).filter(id => backupsList && backupsList.some(row => row === id))
+                        Array.from(selectedRows).filter(id => backupsList && backupsList.some((row: string) => row === id))
                     );
                     setSelectedRows(updatedSelectedRows);
                 }
@@ -59,7 +59,7 @@ export default function Backups() {
         }, 5000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [getBackupsList, selectedRows]);
 
     // Define columns for the table
     const [columns] = useState<typeof defaultColumns>(() => [
@@ -92,12 +92,11 @@ export default function Backups() {
 
     function handleRestore(original: string) {
         setIsRestoreContainer(true);
-        const client = new Client('http://localhost:12712');
-        client.restoreBackup(original).then(r => {
+        restoreBackup(original).then(r => {
             let notificationType: NotificationType;
             let resultDesc;
             if (r.code === 200) {
-                let taskIds = JSON.parse(localStorage.getItem('taskIDs') || '[]');
+                const taskIds = JSON.parse(localStorage.getItem('taskIDs') || '[]');
                 taskIds.push(r.data.taskID);
                 localStorage.setItem('taskIDs', JSON.stringify(taskIds));
 
@@ -122,8 +121,7 @@ export default function Backups() {
 
     function handleDelete(original: string) {
         setIsDelteBackup(true);
-        const client = new Client('http://localhost:12712');
-        client.delBackup(original).then(r => {
+        delBackup(original).then(r => {
             let notificationType: NotificationType;
             let resultDesc;
             if (r.code === 200) {
@@ -159,8 +157,7 @@ export default function Backups() {
 
     function backupButtonClick() {
         setIsBackupContainer(true);
-        const client = new Client('http://localhost:12712');
-        client.backupContainer().then(r => {
+        createBackup().then(r => {
             let notificationType: NotificationType;
             let resultDesc;
             if (r.code === 200) {
