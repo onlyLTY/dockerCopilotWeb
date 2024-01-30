@@ -7,6 +7,7 @@
 }
 
 .about-content {
+  line-height: 2;
   color: #b7c5d6;
 }
 
@@ -15,6 +16,7 @@
 }
 
 .reward-img {
+  margin-top: 1%;
   display: flex;
   justify-content: center; /* Changed from space-around to center */
   gap: 10%; /* This sets a fixed gap between the items */
@@ -33,11 +35,11 @@
 .reward-img img {
   width: 100%; /* This makes the image responsive to the div width, you may want to set a max-width */
   height: auto; /* This maintains the aspect ratio of the image */
-  margin-bottom: 10px; /* This adds space between the image and the text */
+  margin-bottom: 6%; /* This adds space between the image and the text */
 }
 
 .reward-img p {
-  margin-top: 5%; /* This removes the default margin from paragraphs */
-  color: #000; /* This sets the text color, you can adjust as needed */
-  font-size: 10px; /* Adjust font size as needed */
+  margin-top: 0; /* This removes the default margin from paragraphs */
+  color: #b7c5d6; /* This sets the text color, you can adjust as needed */
+  font-size: 20px; /* Adjust font size as needed */
 }

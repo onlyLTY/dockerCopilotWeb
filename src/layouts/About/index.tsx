@@ -19,11 +19,11 @@ export default function About() {
                             <div className="reward-img">
                                 <div className="alipay">
                                     <img src={alipay} referrerPolicy="no-referrer" alt="支付宝"/>
-                                    支付宝扫一扫
+                                    <p>支付宝扫一扫</p>
                                 </div>
                                 <div className="wechat">
                                     <img src={wechat} referrerPolicy="no-referrer" alt="微信"/>
-                                    微信扫一扫
+                                    <p>微信扫一扫</p>
                                 </div>
                             </div>
                         </div>
