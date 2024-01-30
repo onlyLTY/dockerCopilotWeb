@@ -1,4 +1,4 @@
-import zhifubao from '@assets/zhifubao.png';
+import alipay from '@assets/alipay.jpg';
 import wechat from '@assets/wechat.jpg';
 import {Card} from "@components";
 import './style.scss';
@@ -16,9 +16,16 @@ export default function About() {
                         </p>
                         <p><span>最后的最后，如果您用的愉快的话，可以请我喝一瓶快乐水吗？</span></p>
                         <div className="about-img">
-                            <img src={zhifubao} referrerPolicy="no-referrer" alt="支付宝"/><img src={wechat}
-                                                                                                referrerPolicy="no-referrer"
-                                                                                                alt="微信"/>
+                            <div className="reward-img">
+                                <div className="alipay">
+                                    <img src={alipay} referrerPolicy="no-referrer" alt="支付宝"/>
+                                    支付宝扫一扫
+                                </div>
+                                <div className="wechat">
+                                    <img src={wechat} referrerPolicy="no-referrer" alt="微信"/>
+                                    微信扫一扫
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
