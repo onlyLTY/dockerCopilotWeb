@@ -2,10 +2,12 @@ import {useApiClient} from './apiClient';
 import axios from "axios";
 import FormData from "form-data";
 import {ContainerInfo, ImageInfo, ProgressInfo, RemoteVersionInfo, taskIdInfo, VersionInfo} from "@lib/request/type.ts";
+import {modalOpenAtom} from "@layouts/ExternalControllerDrawer/constants.ts";
+import {useSetAtom} from "jotai";
 
 export const useApi = () => {
     const apiClient = useApiClient();
-
+    const setIsModalOpen = useSetAtom(modalOpenAtom);
     const login = async (secretKey: string) => {
         // 登录不是这里，用这个登录的话会有奇怪的问题，需要点击两次才能成功登录
         // 第一次是按照老的client发送请求，第二次是按照新的client发送请求
@@ -27,16 +29,6 @@ export const useApi = () => {
             throw error;
         }
     };
-
-    const getVersion = async () => {
-        try {
-            const response = await apiClient.get('/api/version');
-            return response.data;
-        } catch (error) {
-            console.error('Get version error:', error);
-            throw error;
-        }
-    }
 
     const getContainersList = async () => {
         try {
@@ -267,6 +259,9 @@ export const useApi = () => {
             return response.data
         } catch (error) {
             // 在这里处理错误，返回一个自定义的错误响应
+            if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+                setIsModalOpen(true);
+            }
             if (axios.isAxiosError(error) && error.response) {
                 // 如果错误来自 Axios，并且有响应体
                 return error.response.data;
@@ -431,7 +426,6 @@ export const useApi = () => {
 
     return {
         login,
-        getVersion,
         getContainersList,
         startContainer,
         stopContainer,
