@@ -9,8 +9,8 @@ import axios from "axios"; // 调整路径以匹配你的文件结构
 export default function ExternalControllerDrawer() {
     const [, setConfig] = useAtom(configAtom)
     const [isModalOpen, setIsModalOpen] = useAtom(modalOpenAtom);
-    const [hostname, setHostname] = useState("");
-    const [port, setPort] = useState("");
+    const [hostname, setHostname] = useState(window.location.hostname);
+    const [port, setPort] = useState(window.location.port);
     const [secretKey, setSecretKey] = useState("");
     const [protocol, setProtocol] = useState("http://");
 
