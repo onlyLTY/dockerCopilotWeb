@@ -119,12 +119,11 @@ export const useApi = () => {
         }
     }
 
-    const updateContainer = async (id: string, containerName: string, imageNameAndTag: string, delOldContainer: boolean) => {
+    const updateContainer = async (id: string, containerName: string, imageNameAndTag: string) => {
         try {
             const formData = new FormData();
             formData.append('containerName', containerName);
             formData.append('imageNameAndTag', imageNameAndTag);
-            formData.append('delOldContainer', delOldContainer.toString());
 
             const response = await apiClient.post<{
                 code: number,

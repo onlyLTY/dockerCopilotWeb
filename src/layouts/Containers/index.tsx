@@ -474,7 +474,7 @@ export default function Containers() {
                 );
                 return;
             } else {
-                const promise = updateContainer(id, containerName, imageNameAndTag, true).then(r => {
+                const promise = updateContainer(id, containerName, imageNameAndTag).then(r => {
                     // 将新的task id添加到localStorage中的数组
                     if (r.code === 200) {
                         console.log(r.data.taskID);
@@ -701,7 +701,7 @@ export default function Containers() {
                 return;
             }
 
-            updateContainer(id, containerName, imageNameAndTag, true).then(r => {
+            updateContainer(id, containerName, imageNameAndTag).then(r => {
                 let notificationType: NotificationType;
                 let resultDesc;
 
