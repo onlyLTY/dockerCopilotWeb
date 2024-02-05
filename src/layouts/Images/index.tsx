@@ -316,7 +316,7 @@ export default function Images() {
     return (
         <div className="page !h-100vh">
             {contextHolder}
-            <Header title={'容器'}>
+            <Header title={'镜像'}>
                 <ConfigProvider
                     theme={{
                         components: {
