@@ -73,7 +73,10 @@ export default function Sidebar (props: SidebarProps) {
     });
     }, [getRemoteVersionInfo, getVersionInfo]);
 
+    const [isUpdateProgram, setIsUpdateProgram] = useState(false);
+
     async function updateButtonClick() {
+        setIsUpdateProgram(true)
         const updateResult = await updateProgram() as unknown as {
             code: number,
             msg: string,
@@ -87,6 +90,7 @@ export default function Sidebar (props: SidebarProps) {
                 '确认',
                 () => console.log('容器更新成功通知已关闭')
             );
+            setIsUpdateProgram(false)
         } else {
             openNotificationWithButton(
                 'error',
@@ -95,6 +99,7 @@ export default function Sidebar (props: SidebarProps) {
                 '确认',
                 () => console.log('容器更新失败通知已关闭')
             );
+            setIsUpdateProgram(false)
         }
     }
 
@@ -121,7 +126,7 @@ export default function Sidebar (props: SidebarProps) {
                 >
                     {showButton && (
                         <Button
-
+                            loading={isUpdateProgram}
                             className="button-green-hover button-green-active"
                             onClick={updateButtonClick}>更新程序
                         </Button>
