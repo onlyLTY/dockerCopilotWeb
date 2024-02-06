@@ -18,7 +18,7 @@ export default function ExternalControllerDrawer() {
         const storedConfig = localStorage.getItem('externalControllers');
         if (storedConfig) {
             const parsedConfig = JSON.parse(storedConfig);
-            if (parsedConfig.hostname === "" || parsedConfig.port === "" || parsedConfig.secretKey === "") {
+            if (parsedConfig.hostname === "" || parsedConfig.secretKey === "") {
                 setIsModalOpen(true);
             }
         } else {
