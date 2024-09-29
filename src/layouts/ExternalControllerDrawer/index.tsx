@@ -1,5 +1,5 @@
 import {useAtom} from "jotai";
-import {Input, Modal, Select} from "antd";
+import {Input, message, Modal, Select} from "antd";
 import React, {useEffect, useState} from "react";
 import './style.scss'
 import {configAtom} from "@lib/request/configAtom";
@@ -72,6 +72,7 @@ export default function ExternalControllerDrawer() {
         } catch (error) {
             console.error('Error during login:', error);
             setIsModalOpen(true);
+            message.error('登录失败。请检查'); // 弹出通知
         }
     };
 
