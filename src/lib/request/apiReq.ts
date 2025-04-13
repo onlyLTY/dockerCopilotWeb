@@ -374,13 +374,13 @@ export const useApi = () => {
         }
     }
 
-    const restoreBackup = async (fileName: string) => {
+    const createComposeBackup = async () => {
         try {
-            const response = await apiClient.post<{
+            const response = await apiClient.get<{
                 code: number,
                 msg: string,
-                data: taskIdInfo
-            }>(`/api/container/backups/${fileName}/restore`)
+                data: null
+            }>(`/api/container/backup2compose`)
             return response.data
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
@@ -397,14 +397,39 @@ export const useApi = () => {
         }
     }
 
-    const delBackup = async (fileName: string) => {
+    const restoreBackup = async (filename: string) => {
         try {
-            const response = await apiClient.delete<{
+            const response = await apiClient.post<{
                 code: number,
                 msg: string,
-                data: null
-            }>(`/api/container/backups/${fileName}`)
+                data: taskIdInfo
+            }>(`/api/container/backups/restore`, {
+                filename
+            })
             return response.data
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                // 如果错误来自 Axios，并且有响应体
+                return error.response.data;
+            } else {
+                // 对于其他类型的错误，返回一个通用错误响应
+                return {
+                    code: -1,
+                    msg: 'An unexpected error occurred',
+                    data: null
+                };
+            }
+        }
+    }
+
+    const delBackup = async (filename: string) => {
+        try {
+            const response = await apiClient.delete<{
+                code: number;
+                msg: string;
+                data: null;
+            }>(`/api/container/backups?filename=${encodeURIComponent(filename)}`);
+        return response.data;
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 // 如果错误来自 Axios，并且有响应体
@@ -441,6 +466,7 @@ export const useApi = () => {
         createBackup,
         restoreBackup,
         delBackup,
+        createComposeBackup,
         // ...可以添加更多的API方法
     };
 };

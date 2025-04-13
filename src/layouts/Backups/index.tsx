@@ -1,6 +1,6 @@
 import {Card, Header, NotificationType} from "@components";
 import {ColumnDef, ColumnResizeMode, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
-import {Button, ConfigProvider} from "antd";
+import {Button, ConfigProvider, Divider} from "antd";
 import {useEffect, useRef, useState} from "react";
 import useCustomNotification from "@components/Message";
 import './style.scss';
@@ -26,40 +26,37 @@ export default function Backups() {
     const dataRef = useRef(data); // 创建一个引用来存储当前的数据
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
     const {contextHolder, openNotificationWithButton} = useCustomNotification();
-    const {getBackupsList, createBackup, restoreBackup, delBackup} = useApi()
+    const {getBackupsList, createBackup, restoreBackup, delBackup, createComposeBackup} = useApi()
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const backupsListResp = await getBackupsList();
-                const backupsList = backupsListResp.data;
-                if (backupsList === null || JSON.stringify(backupsList) !== JSON.stringify(dataRef.current)) {
-                    setData(backupsList || []);
-                    dataRef.current = backupsList || [];
+      const fetchData = async () => {
+        try {
+          const backupsListResp = await getBackupsList();
+          const backupsList = backupsListResp.data ?? []; // 确保非 null
 
-                    // 更新 selectedRows，仅保留存在于新数据中的 ID
-                    const updatedSelectedRows = new Set(
-                        Array.from(selectedRows).filter(id => backupsList && backupsList.some((row: string) => row === id))
-                    );
-                    setSelectedRows(updatedSelectedRows);
-                }
-            } catch (error) {
-                console.error('Error while getting backups list:', error);
-            }
-        };
+          // 深度比较优化（考虑 null/undefined/空数组）
+          if (
+            (dataRef.current === null && backupsList.length === 0) ||
+            JSON.stringify(dataRef.current) !== JSON.stringify(backupsList)
+          ) {
+            setData(backupsList);
+            dataRef.current = backupsList;
 
-        fetchData().catch(error => {
-            console.error('Error while fetching data:', error);
-        });
+            // 清理无效的 selectedRows
+            setSelectedRows(prev => new Set(
+              Array.from(prev).filter(id => backupsList.includes(id))
+            ));
+          }
+        } catch (error) {
+          console.error('Fetch error:', error);
+        }
+      };
 
-        const intervalId = setInterval(() => {
-            fetchData().catch(error => {
-                console.error('Error while fetching data:', error);
-            });
-        }, 5000);
+      fetchData();
 
-        return () => clearInterval(intervalId);
-    }, [getBackupsList, selectedRows]);
+      const intervalId = setInterval(fetchData, 5000);
+      return () => clearInterval(intervalId);
+    }, [getBackupsList,selectedRows]); // 移除 selectedRows 依赖
 
     // Define columns for the table
     const [columns] = useState<typeof defaultColumns>(() => [
@@ -79,7 +76,7 @@ export default function Backups() {
                 <div>
                         <Button className={'text-button'} loading={isRestoreContainer}
                                 onClick={() => handleRestore(info.row.original)}>恢复</Button>
-                        <Button className={'text-button'} loading={isDelteBackup}
+                        <Button className={'text-button'} loading={isDeleteBackup}
                                 onClick={() => handleDelete(info.row.original)}>删除</Button>
                 </div>
             ),
@@ -117,10 +114,10 @@ export default function Backups() {
         setIsRestoreContainer(false);
     }
 
-    const [isDelteBackup, setIsDelteBackup] = useState(false);
+    const [isDeleteBackup, setIsDeleteBackup] = useState(false);
 
     function handleDelete(original: string) {
-        setIsDelteBackup(true);
+        setIsDeleteBackup(true);
         delBackup(original).then(r => {
             let notificationType: NotificationType;
             let resultDesc;
@@ -139,7 +136,7 @@ export default function Backups() {
                 () => console.log(`容器${notificationType === 'success' ? '更新任务成功' : '更新任务失败'}通知已关闭`)
             );
         });
-        setIsDelteBackup(false);
+        setIsDeleteBackup(false);
     }
 
     // Create a table instance
@@ -154,6 +151,7 @@ export default function Backups() {
     })
 
     const [isBackupContainer, setIsBackupContainer] = useState(false);
+    const [isBackupCompose, setIsBackupCompose] = useState(false);
 
     function backupButtonClick() {
         setIsBackupContainer(true);
@@ -161,21 +159,61 @@ export default function Backups() {
             let notificationType: NotificationType;
             let resultDesc;
             if (r.code === 200) {
-                resultDesc = `容器备份成功`;
+                resultDesc = `容器config备份成功`;
                 notificationType = 'success';
             } else {
-                resultDesc = `容器备份失败${r.msg}`;
+                resultDesc = `容器config备份失败${r.msg}`;
                 notificationType = 'error';
             }
             openNotificationWithButton(
                 notificationType,
-                notificationType === 'success' ? '更新成功' : '更新失败',
+                notificationType === 'success' ? '备份成功' : '备份失败',
                 <div dangerouslySetInnerHTML={{__html: resultDesc}}/>,
                 '确认',
-                () => console.log(`容器${notificationType === 'success' ? '更新任务成功' : '更新任务失败'}通知已关闭`)
+                () => console.log(`容器${notificationType === 'success' ? '备份任务成功' : '备份任务失败'}通知已关闭`)
             );
         });
         setIsBackupContainer(false)
+    }
+
+    function backupComposeButtonClick() {
+        setIsBackupCompose(true);
+        createComposeBackup().then(r => {
+            let notificationType: NotificationType;
+            let resultDesc;
+            if (r.code === 200) {
+                resultDesc = `compose备份成功`;
+                notificationType = 'success';
+            } else {
+                resultDesc = `compose备份失败${r.msg}`;
+                notificationType = 'error';
+            }
+            const showComposeNotice = notificationType === 'success' && !localStorage.getItem('composeReadme');
+            openNotificationWithButton(
+              notificationType,
+              notificationType === 'success' ? '备份成功' : '备份失败',
+              <>
+                <div dangerouslySetInnerHTML={{__html: resultDesc}}/>
+                {showComposeNotice && (
+                  <div style={{marginTop: 16}}>
+                    <Divider style={{margin: '8px 0'}}/>
+                    <div dangerouslySetInnerHTML={{__html:
+                      `目前compose备份还不完善，如性能限制等还未支持，如果遇到问题，可以github提issue给我`
+                    }}/>
+                  </div>
+                )}
+              </>,
+              '确认',
+              () => {
+                console.log(`容器${notificationType === 'success' ? '备份任务成功' : '备份任务失败'}通知已关闭`);
+                if (showComposeNotice) {
+                  localStorage.setItem('composeReadme', "isNotify");
+                }
+              }
+            );
+
+        });
+        setIsBackupCompose(false)
     }
 
     return (
@@ -193,11 +231,18 @@ export default function Backups() {
                         },
                     }}
                 >
-                    <Button
-                        onClick={backupButtonClick}
-                        loading={isBackupContainer}
-                        className="button-blue-hover button-blue-active">新建备份
-                    </Button>
+                    <Button.Group>
+                        <Button
+                            onClick={backupButtonClick}
+                            loading={isBackupContainer}
+                            className="button-blue-hover button-blue-active">config备份
+                        </Button>
+                        <Button
+                            onClick={backupComposeButtonClick}
+                            loading={isBackupCompose}
+                            className="button-blue-hover button-blue-active">compose备份
+                        </Button>
+                    </Button.Group>
                 </ConfigProvider>
             </Header>
             <Card ref={cardRef} className="backups-card relative">
