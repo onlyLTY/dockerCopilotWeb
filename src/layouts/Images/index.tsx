@@ -62,6 +62,38 @@ const defaultColumns: ColumnDef<ImageInfo>[] = [
         cell: info => info.getValue(),
         size: 350,
     },
+    {
+      header: '镜像官网',
+      accessorKey: 'hubUrl',
+      cell: (info) => {
+        const imageId = info.row.original.name;
+        const parts = imageId.split('/');
+        let imagePath;
+        if (parts.length === 1) {
+          // 如果不含 '/', 则添加 "library/" 前缀
+          imagePath = `library/${imageId}`;
+        } else if (parts.length === 2) {
+          // 如果恰好有一个 '/', 保持原样
+          imagePath = imageId;
+        } else {
+          // 如果含有多个 '/', 则丢弃前面的所有部分，仅保留最后两个部分
+          imagePath = parts.slice(-2).join('/');
+        }
+        const hubUrl = `https://hub.docker.com/r/${imagePath}`;
+
+        return (
+          <a
+            href={hubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#1890ff' }}
+          >
+            查看详情
+          </a>
+        );
+      },
+      size: 150,
+    },
 ]
 
 export default function Images() {
