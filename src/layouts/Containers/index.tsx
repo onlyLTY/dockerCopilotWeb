@@ -180,7 +180,15 @@ export default function Containers() {
         return () => clearInterval(intervalId);
     }, [drawerState.visible, getContainersList, selectedRows, setModalOpen]);
 
-    const handleRowSelect = (rowId: string) => {
+    const isRowSelectAble = (usingImage: string):boolean => {
+        return !usingImage.includes("0nlylty/dockercopilot");
+
+    }
+
+    const handleRowSelect = (rowId: string, usingImage: string) => {
+        if (!isRowSelectAble(usingImage)) {
+            return;
+        }
         setSelectedRows((prev) => {
             const newSelectedRows = new Set(prev);
             if (newSelectedRows.has(rowId)) {
@@ -201,7 +209,13 @@ export default function Containers() {
 
     const areAllRowsSelected = () => {
         if (selectedRows.size > 0) {
-            return data.every(row => selectedRows.has(row.id));
+            // 检查是否所有的行都被选中，但是只检查可选的行
+            for (const row of data) {
+                if (isRowSelectAble(row.usingImage) && !selectedRows.has(row.id)) {
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     };
@@ -212,7 +226,13 @@ export default function Containers() {
             setSelectedRows(new Set());
         } else {
             // 否则，选择所有的行
-            setSelectedRows(new Set(data.map(row => row.id)));
+            const newSelectedRows = new Set<string>();
+            for (const row of data) {
+                if (isRowSelectAble(row.usingImage)) {
+                    newSelectedRows.add(row.id);
+                }
+            }
+            setSelectedRows(newSelectedRows);
         }
     };
 
@@ -225,17 +245,24 @@ export default function Containers() {
                         <Checkbox onChange={handleSelectAll} checked={areAllRowsSelected()}/>
                     </div>
                 ),
-                cell: ({row}: { row: Row<ContainerInfo> }) => (
-                    <div className="checkbox-center">
+                cell: ({row}: { row: Row<ContainerInfo> }) => {
+                    const selectable = isRowSelectAble(row.original.usingImage);
+                    return (
+                        <div className="checkbox-center">
                         <Checkbox
                             checked={selectedRows.has(row.original.id)}
+                            disabled={!selectable}
                             onChange={(e) => {
                                 e.stopPropagation(); // 阻止事件冒泡
-                                handleRowSelect(row.original.id);
+                                if (!isRowSelectAble(row.original.usingImage)) {
+                                    return;
+                                }
+                                handleRowSelect(row.original.id, row.original.usingImage);
                             }}
                         />
-                    </div>
-                ),
+                        </div>
+                    )
+                },
                 size: 40,
                 minSize: 40,
                 maxSize: 40,
