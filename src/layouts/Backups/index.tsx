@@ -72,14 +72,30 @@ export default function Backups() {
         {
             header: '操作',
             accessorKey: '',
-            cell: (info: { row: { original: string; }; }) => (
-                <div>
-                        <Button className={'text-button'} loading={isRestoreContainer}
-                                onClick={() => handleRestore(info.row.original)}>恢复</Button>
-                        <Button className={'text-button'} loading={isDeleteBackup}
-                                onClick={() => handleDelete(info.row.original)}>删除</Button>
-                </div>
-            ),
+            cell: (info: { row: { original: string; }; }) => {
+                const filename = info.row.original;
+                const canRestore = filename.endsWith('.json');
+                return (
+                    <div>
+                      {canRestore && (
+                        <Button
+                          className="text-button"
+                          loading={isRestoreContainer}
+                          onClick={() => handleRestore(filename)}
+                        >
+                          恢复
+                        </Button>
+                      )}
+                      <Button
+                        className="text-button"
+                        loading={isDeleteBackup}
+                        onClick={() => handleDelete(filename)}
+                      >
+                        删除
+                      </Button>
+                    </div>
+                );
+            },
             size: 200,
             minSize: 100,
         },
@@ -105,10 +121,10 @@ export default function Backups() {
             }
             openNotificationWithButton(
                 notificationType,
-                notificationType === 'success' ? '更新成功' : '更新失败',
+                notificationType === 'success' ? '恢复成功' : '恢复失败',
                 <div dangerouslySetInnerHTML={{__html: resultDesc}}/>,
                 '确认',
-                () => console.log(`容器${notificationType === 'success' ? '更新任务成功' : '更新任务失败'}通知已关闭`)
+                () => console.log(`容器${notificationType === 'success' ? '恢复任务成功' : '恢复任务失败'}通知已关闭`)
             );
         });
         setIsRestoreContainer(false);
