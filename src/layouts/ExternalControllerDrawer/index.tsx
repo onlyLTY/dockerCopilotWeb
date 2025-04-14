@@ -4,7 +4,8 @@ import React, {useEffect, useState} from "react";
 import './style.scss'
 import {configAtom} from "@lib/request/configAtom";
 import {modalOpenAtom} from "@layouts/ExternalControllerDrawer/constants";
-import axios from "axios"; // 调整路径以匹配你的文件结构
+import axios from "axios";
+import {EyeInvisibleOutlined, EyeOutlined} from "@ant-design/icons"; // 调整路径以匹配你的文件结构
 
 export default function ExternalControllerDrawer() {
     const [, setConfig] = useAtom(configAtom)
@@ -12,6 +13,7 @@ export default function ExternalControllerDrawer() {
     const [hostname, setHostname] = useState(window.location.hostname);
     const [port, setPort] = useState(window.location.port);
     const [secretKey, setSecretKey] = useState("");
+    const [isVisible, setIsVisible] = useState(false);
     const [protocol, setProtocol] = useState("http://");
 
     useEffect(() => {
@@ -94,7 +96,23 @@ export default function ExternalControllerDrawer() {
                 <p>端口</p>
                 <Input id="port" value={port} onChange={handlePortChange}/>
                 <p>密钥</p>
-                <Input id="secretKey" value={secretKey} onChange={handleSecretKeyChange}/>
+                <div
+                    onMouseEnter={() => setIsVisible(true)}
+                    onMouseLeave={() => setIsVisible(false)}
+                >
+                    <Input
+                        id="secretKey"
+                        type={isVisible ? "text" : "password"}
+                        value={secretKey}
+                        onChange={handleSecretKeyChange}
+                        autoComplete="current-password"  // 支持浏览器密码填充
+                        suffix={
+                        <span onClick={() => setIsVisible(!isVisible)}>
+                            {isVisible ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+                        </span>
+                    }
+                    />
+                </div>
             </Modal>
         </div>
     )
