@@ -14,7 +14,7 @@ export default function ExternalControllerDrawer() {
     const [port, setPort] = useState(window.location.port);
     const [secretKey, setSecretKey] = useState("");
     const [isVisible, setIsVisible] = useState(false);
-    const [protocol, setProtocol] = useState("http://");
+    const [protocol, setProtocol] = useState(window.location.protocol.replace(':', '://'));
 
     useEffect(() => {
         const storedConfig = localStorage.getItem('externalControllers');
